@@ -7,9 +7,16 @@
 #import numpy;
 #from unicodedata import normalize
 
-print("digite o quiser")
+from nbformat import read
+import read
 
-mensagem = input()
+msg= read.arquiv.read_lines("example.txt")
+
+print("Tamanho: A", len(msg))
+print(msg)
+
+
+#mensagem = input()
 estado = 0
 pos = 0
 listTokens = ""
@@ -33,8 +40,8 @@ def nextToken():
     pos2 = 0;
 
     i = 0
-    print("TAMANHO DA MENSAGEM: ", len(mensagem))
-    while i < len(mensagem):
+    print("TAMANHO DA MENSAGEM: ", len(msg))
+    while i < len(msg):
         if estado == 0:
             # ler o proximo, e muda o estado e sai.
             char = readNext()
@@ -127,8 +134,8 @@ def nextToken():
                 print("NEM LETRA, NEM DIGITO")
             
             #se chegou ao fim
-            if(pos==len(mensagem)):
-                listTokens = mensagem[pos2-1:pos]
+            if(pos==len(msg)):
+                listTokens = msg[pos2:pos]
                 print("token: ", listTokens)
                 
             i+=1
@@ -149,8 +156,8 @@ def nextToken():
                 estado=0
                 
             i+=1
-            if(pos==len(mensagem)):
-                listTokens = mensagem[pos2-1:pos]
+            if(pos==len(msg)):
+                listTokens = msg[pos2-1:pos]
                 print("token: ", listTokens)
             
             
@@ -159,7 +166,7 @@ def nextToken():
 def readNext():
     global pos
 
-    char = mensagem[pos]
+    char = msg[pos]
     pos+=1
     return char
 
