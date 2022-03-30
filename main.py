@@ -13,14 +13,15 @@ mensagem = input()
 estado = 0
 pos = 0
 listTokens = ""
-
+Arraylist = []
 
 #retorna true se o caracter é sem acento
 def semAcento(char):
-    if char in ('á','à', 'ç', 'ç'.upper(), 'í', 'í'.upper(), 'ì', 'ñ', 'û', 'û'.upper(), 'ú', 'ú'.upper(), 'ù'):
+    if char in ('á','à','â','ã', 'ç', 'í', 'ì','î', 'ñ', 'û','ú', 'ù', 'ó', 'ô', 'õ'):
         print("Caracter com acento!")
         return False
-    elif char in ('á'.upper(), 'à'.upper(), 'ì'.upper()):
+    elif char in ('á'.upper(), 'à'.upper(),'â'.upper(), 'ã'.upoer(),'ç'.upper(), 'ì'.upper(),  
+    'í'.upper(),'î'.upper(),'û'.upper(), 'ú'.upper(), 'ù'.upper(),'ó'.upper(), 'ô'.upper(), 'õ'.upper()):
         print("Caracter com acento!")
         return False
     return True
@@ -42,14 +43,87 @@ def nextToken():
             if(char.isnumeric()):
                 print("É UM DIGITO")
                 estado = 2
+                pos2 = pos-1
+
             # é uma letra, exceto ç - falta colocar exececoes nas letras com acentos.
             elif char.isalpha() and semAcento(char):
                 print("É UMA LETRA")
                 estado = 1
 
-                pos2 = pos;
+                pos2 = pos-1 #como a posicao foi para 1 precisa-se usar a posicao anterior caso forme um token
+            elif char=='+':
+                print("É o '+' ")
+                estado = 5
+                pos2 = pos-1
+                ##fechar o token
 
-            else:
+            elif char=='-':
+                print("É o '+' ")
+                estado = 6
+                pos2 = pos-1
+                ##fechar o token
+
+            elif char in('/', '*') :
+                print("É o ", char)
+                estado = 7
+                pos2 = pos-1 ##aqui poderíamos fechar o token , pós nao pode vim outra / ou *
+            
+            elif char in ('=', '<', '>'):
+                print("É o ", char)
+                estado = 8
+                pos2 = pos-1
+                
+            elif char =='!':
+                print("É o ", char)
+                estado = 9
+                pos2 = pos-1
+
+            elif char =='&':
+                print("É o ", char)
+                estado = 11
+                pos2 = pos-1
+
+            elif char =='|':
+                print("É o ", char)
+                estado = 12
+                pos2 = pos-1
+
+            elif char =='!':
+                print("É o ", char)
+                estado = 13
+                pos2 = pos-1
+
+            elif char =='%':
+                print("É o ", char)
+                estado = 14
+                pos2 = pos-1
+
+            elif char =='/':
+                print("É o ", char)
+                estado = 14
+                pos2 = pos-1
+
+            elif char =='/':
+                print("É o ", char)
+                estado = 15
+                pos2 = pos-1
+
+            elif char in('.', ',', ':', ';'): #delimitadores
+                print("É o ", char)
+                estado = 19
+                pos2 = pos-1
+
+            elif char =="\"": #CADEIRA DE CARACTEREs
+                print("É o ", char)
+                estado = 20
+                pos2 = pos-1
+
+            elif char =="'": #caracter
+                print("É o ", char)
+                estado = 23
+                pos2 = pos-1
+
+            else: ##tratar o resto
                 print("NEM LETRA, NEM DIGITO")
             
             #se chegou ao fim
