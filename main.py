@@ -40,6 +40,7 @@ def nextToken(count):
     global pos
     global listTokens
     inicio_lexema = 0
+    caracter_anterior=''
 
     while True:
         if estado == 0:
@@ -67,24 +68,26 @@ def nextToken(count):
                 print("É o '+' ")
                 estado = 5
                 inicio_lexema = pos-1
-                # fechar o token
+                
 
             elif char == '-':
-                print("É o '+' ")
+                print("É o '-' ")
                 estado = 6
                 inicio_lexema = pos-1
-                # fechar o token
+                
 
             elif char in ('/', '*'):
                 print("É o ", char)
                 estado = 7
+                caracter_anterior=char
                 inicio_lexema = pos-1  # aqui poderíamos fechar o token , pós nao pode vim outra / ou *
 
             elif char in ('=', '<', '>'):
                 print("É o ", char)
                 estado = 8
+                caracter_anterior=char
                 inicio_lexema = pos-1
-
+            
             elif char == '!':
                 print("É o ", char)
                 estado = 9
@@ -147,27 +150,62 @@ def nextToken(count):
 
             print("lookhead: ", char)
 
-            if(char.isspace() or char in ('.', ',', ':', ';')):
+            if(char.isspace() or char in (',', ':', ';')):
                 print("É DELIMITADOR")
-                lexema = linha_atual[inicio_lexema:pos]
-                token = Token(count,'digito',lexema)
+                lexema = linha_atual[inicio_lexema:pos-1]
+                token = Token(count,'inteiro',lexema)
                 estado = 0
                 return token
-                
-            if(char.isnumeric()):
+            
+            elif (char.isnumeric()): ##depois de um dígito pode ter outro 
                 print("É UM DIGITO")
                 estado = 2
-                inicio_lexema = pos-1
-        
+                #inicio_lexema = pos-1
+
+            elif(char == '.'): ## ou ter um limitador(float)
+                print("É DELIMITADOR . ")
+                estado = 3
+
+        elif estado == 3: #estado do ponto "flutuante"
+            char = readNext()
+
+            print("lookhead: ", char)
+
+            if(char.isnumeric()): ##depois de um . tem um digito 
+                print("É UM DIGITO")
+                estado = 4
+                #inicio_lexema = pos-1
+
+            #encontra outro delimitador -> (ex.: 123.,) digito mal formado? marca até o 123.
+            if(char.isspace() or char in ('.', ',', ':', ';')): 
+                lexema = linha_atual[inicio_lexema:pos-1] 
+                estado = 0
+        elif estado == 4: 
+            char = readNext()
+
+            print("lookhead: ", char)
+
+            if(char.isnumeric()): ##depois de um . tem um digito 
+                print("É UM DIGITO")
+                estado = 4
+
+            elif(char.isspace() or char in ('.', ',', ':', ';') ):
+                print("É DELIMITADOR")
+                lexema = linha_atual[inicio_lexema:pos-1]
+                token = Token(count,'ponto flutuante',lexema)
+                estado = 0
+                pos = pos-1
+                return token
+
         elif estado == 5:
             # ler o proximo, e muda o estado e sai.
             char = readNext()
 
             print("lookhead: ", char)
 
-            if(char.isspace()):
+            if(char.isspace() or char in ('.', ',', ':', ';')):
                 print("É DELIMITADOR")
-                lexema = linha_atual[inicio_lexema:pos]
+                lexema = linha_atual[inicio_lexema:pos-1]
                 token = Token(count,'operador_adicao',lexema)
                 estado = 0
                 pos = pos-1
@@ -177,7 +215,65 @@ def nextToken(count):
                 print("É o '+' ")
                 estado = 7
                 inicio_lexema = pos-1
-                # fechar o token
+
+        elif estado == 6:
+            # ler o proximo, e muda o estado e sai.
+            char = readNext()
+
+            print("lookhead: ", char)
+
+            if(char.isspace() or char in ('.', ',', ':', ';')):
+                print("É DELIMITADOR")
+                lexema = linha_atual[inicio_lexema:pos-1]
+                token = Token(count,'operador_subtração',lexema)
+                estado = 0
+                pos = pos-1
+                return token
+                
+            elif char == '-':
+                print("É o '-' ")
+                estado = 7
+                inicio_lexema = pos-1
+
+        elif estado == 7:
+            char = readNext()
+
+            print("lookhead: ", char)
+
+            if(char == '-'):
+                print("operador de subtração")
+                lexema = linha_atual[inicio_lexema:pos-1]
+                token = Token(count,'operador_decremento',lexema)
+                estado = 0
+               # pos = pos-1
+                return token
+
+            elif(char == '+'):
+                print("operador de adicao")
+                lexema = linha_atual[inicio_lexema:pos-1]
+                token = Token(count,'operador_incremento',lexema)
+                estado = 0
+               # pos = pos-1
+                return token
+
+            #se o caracter anterior foi o / ou *
+            #if(char.isspace() or char in ('.', ',', ':', ';', '/', '*', )): 
+
+            #READ ME----->>>>> acho que nem precisa desse if, pois o que vem antes é 
+            # um dos operadores e depois qualquer outra coisa q aí vai ter que jogar
+            #  pro estado 0 (SUGESTAO) posso ta falando besteira... 
+            print("É o ", caracter_anterior)
+            lexema = linha_atual[inicio_lexema:pos-1]
+
+            if(caracter_anterior=='*'):
+                token = Token(count,'operador_multiplicacao',lexema)
+            if(caracter_anterior=='/'):
+                token = Token(count,'operador_divisao',lexema)
+            estado = 0
+            pos = pos-1
+            caracter_anterior=''
+            return token
+
         elif estado == 8:
              # ler o proximo, e muda o estado e sai.
             char = readNext()
@@ -186,15 +282,53 @@ def nextToken(count):
 
             if(char.isspace()):
                 print("É DELIMITADOR")
-                lexema = linha_atual[inicio_lexema:pos]
-                token = Token(count,'operador_adicao',lexema)
+                lexema = linha_atual[inicio_lexema:pos-1]
+                if(caracter_anterior=="="):
+                    token = Token(count,'operador_atribuicao',lexema)
+                elif(caracter_anterior=="<"):
+                    token = Token(count,'operador_menorque',lexema)
+                elif(caracter_anterior==">"):
+                    token = Token(count,'operador_maiorque',lexema)
                 estado = 0
                 pos = pos-1
+                caracter_anterior=''
                 return token
+
+            if char == '=':
+                print("É o ", char)
+                estado = 10 ##poderíamos fechar o lexama aqui? nem precisaria do estado 10
+                if(caracter_anterior=="="): 
+                    token = Token(count,'operador_igualdade',lexema)
+                elif(caracter_anterior=="<"):
+                    token = Token(count,'operador_menor_igual',lexema)
+                elif(caracter_anterior==">"):
+                    token = Token(count,'operador_maior_igual',lexema)
+                lexema = linha_atual[inicio_lexema:pos-1]
+                estado = 0
+                return token
+
             elif(char == '\n'):
                 print("FIM DE LINHA")
-git                 estado = 0
+                estado = 0
                 pass
+        elif estado == 9:
+             # ler o proximo, e muda o estado e sai.
+            char = readNext()
+
+            print("lookhead: ", char)
+            if char == '=':
+                print("É o ", char)
+                estado = 10 ##poderíamos fechar o lexama aqui? nem precisaria do estado 10
+
+                lexema = linha_atual[inicio_lexema:pos-1]
+                token = Token(count,'operador_diferente_de',lexema)
+                estado = 0
+                return token
+
+            # elif(ERROR)
+
+        
+
 
         
             
