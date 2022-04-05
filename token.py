@@ -6,4 +6,4 @@ class Token:
     
 
     def get(self):
-        print("<",self._posicao,",",self._classe,",",self.lexema,">")
+       return "<"+str(self._posicao)+","+str(self._classe)+","+str(self.lexema)+">"

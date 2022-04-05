@@ -11,19 +11,8 @@
 import read
 from token import Token
 
-msg = read.arquiv.read_lines("example.txt")
-
-print(msg, "\n")
-
-# mensagem = input()
-estado = 0
-pos = 0
-listTokens = []
-Arraylist = []
-linha_atual = ''
 
 # retorna true se o caracter é sem acento
-
 def semAcento(char):
     if char in ('á', 'à', 'â', 'ã', 'ç', 'í', 'ì', 'î', 'ñ', 'û', 'ú', 'ù', 'ó', 'ô', 'õ'):
         print("Caracter com acento!")
@@ -35,23 +24,28 @@ def semAcento(char):
     return True
 
 
-def nextToken(count):
+def listToken():
     global estado
     global pos
     global listTokens
+    global count_line
     inicio_lexema = 0
     caracter_anterior=''
 
     while True:
-        if estado == 0:
-            # ler o proximo, e muda o estado e sai.
+        if estado == 0: #estado inicial
+             # ler o proximo, e muda o estado e sai.
+            print("\nESTADO 0")
             char = readNext()
-
             print("lookhead: ", char)
+
+            if not char:
+                break
 
             if(char.isspace()):
                 print("É UM ESPAÇO")
                 estado = 0
+                inicio_lexema = pos-1
 
             if(char.isnumeric()):
                 print("É UM DIGITO")
@@ -123,7 +117,7 @@ def nextToken(count):
                 estado = 15
                 inicio_lexema = pos-1
 
-            elif char in ('.', ',', ':', ';'):  # delimitadores
+            elif(char in (',', ':', ';')): # delimitadores
                 print("É o ", char)
                 estado = 19
                 inicio_lexema = pos-1
@@ -138,24 +132,35 @@ def nextToken(count):
                 estado = 23
                 inicio_lexema = pos-1
 
-            # se chegou ao fim
-            if(pos==len(linha_atual)):
-                listTokens = linha_atual[inicio_lexema:pos]
-                print("token: ", listTokens)
-                return
-        elif estado == 2:
+            elif(char == '\n'):
+                print("FIM DE LINHA")
+                count_line+=1
+                estado = 0
+                inicio_lexema = pos-1
+  
+        elif estado == 2: #estado de digito
             
             # ler o proximo, e muda o estado e sai.
             char = readNext()
-
+            print("\nESTADO 2")
             print("lookhead: ", char)
 
-            if(char.isspace() or char in (',', ':', ';')):
-                print("É DELIMITADOR")
-                lexema = linha_atual[inicio_lexema:pos-1]
-                token = Token(count,'inteiro',lexema)
+            if char == None:
+                print("none")
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line,'delimitador',lexema)
                 estado = 0
-                return token
+                listTokens.append(token)
+                pos = pos-1
+                break
+            elif(char.isspace() or char in (',', ':', ';')):
+                print("É DELIMITADOR")
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'inteiro',lexema)
+                listTokens.append(token)
+                estado = 0
+                pos = pos-1
             
             elif (char.isnumeric()): ##depois de um dígito pode ter outro 
                 print("É UM DIGITO")
@@ -166,9 +171,22 @@ def nextToken(count):
                 print("É DELIMITADOR . ")
                 estado = 3
 
+            elif(char == '\n'):
+                print("FIM DE LINHA")
+                estado = 0
+            
+            else:
+                print("É OUTRO CARACTER")
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'inteiro',lexema)
+                listTokens.append(token)
+                estado = 0
+                pos = pos-1
+
         elif estado == 3: #estado do ponto "flutuante"
             char = readNext()
-
+            print("\nESTADO 3")
             print("lookhead: ", char)
 
             if(char.isnumeric()): ##depois de um . tem um digito 
@@ -178,83 +196,153 @@ def nextToken(count):
 
             #encontra outro delimitador -> (ex.: 123.,) digito mal formado? marca até o 123.
             if(char.isspace() or char in ('.', ',', ':', ';')): 
-                lexema = linha_atual[inicio_lexema:pos-1] 
+                lexema = codigo[inicio_lexema:pos-1] 
                 estado = 0
-        elif estado == 4: 
+            
+            elif(char == '\n'):
+                print("FIM DE LINHA")
+                estado = 0
+        
+        elif estado == 4: #estado dos decimais
             char = readNext()
-
+            print("\nESTADO 4")
             print("lookhead: ", char)
 
-            if(char.isnumeric()): ##depois de um . tem um digito 
+            if char == None:
+                print("none")
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line,'delimitador',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+                break
+
+            elif(char.isnumeric()): ##depois de um . tem um digito 
                 print("É UM DIGITO")
                 estado = 4
 
             elif(char.isspace() or char in ('.', ',', ':', ';') ):
                 print("É DELIMITADOR")
-                lexema = linha_atual[inicio_lexema:pos-1]
-                token = Token(count,'ponto flutuante',lexema)
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'ponto flutuante',lexema)
                 estado = 0
                 pos = pos-1
-                return token
+                listTokens.append(token)
+            elif(char == '\n'):
+                print("FIM DE LINHA")
+                estado = 0
+            else:
+                print("É OUTRO CARACTER")
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'ponto flutuante',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
 
-        elif estado == 5:
+        elif estado == 5: #estado sinal de adição
             # ler o proximo, e muda o estado e sai.
             char = readNext()
-
+            print("\nESTADO 5")
             print("lookhead: ", char)
 
-            if(char.isspace() or char in ('.', ',', ':', ';')):
+            if char == None:
+                print("none")
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line,'delimitador',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+                break
+
+            elif(char.isspace() or char in ('.', ',', ':', ';')):
                 print("É DELIMITADOR")
-                lexema = linha_atual[inicio_lexema:pos-1]
-                token = Token(count,'operador_adicao',lexema)
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador_adicao',lexema)
                 estado = 0
                 pos = pos-1
-                return token
+                listTokens.append(token)
                 
             elif char == '+':
                 print("É o '+' ")
                 estado = 7
                 inicio_lexema = pos-1
+            elif(char == '\n'):
+                print("FIM DE LINHA")
+                estado = 0
+            else:
+                print("É OUTRO CARACTER")
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador_adicao',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
 
-        elif estado == 6:
+        elif estado == 6: #estado sinal de subtração
             # ler o proximo, e muda o estado e sai.
             char = readNext()
-
+            print("\nESTADO 6")
             print("lookhead: ", char)
 
-            if(char.isspace() or char in ('.', ',', ':', ';')):
+            if char == None:
+                print("none")
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line,'delimitador',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+                break
+
+            elif(char.isspace() or char in ('.', ',', ':', ';')):
                 print("É DELIMITADOR")
-                lexema = linha_atual[inicio_lexema:pos-1]
-                token = Token(count,'operador_subtração',lexema)
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador_subtração',lexema)
                 estado = 0
                 pos = pos-1
-                return token
+                listTokens.append(token)
                 
             elif char == '-':
                 print("É o '-' ")
                 estado = 7
                 inicio_lexema = pos-1
+            
+            elif(char == '\n'):
+                print("FIM DE LINHA")
+                estado = 0
 
-        elif estado == 7:
+        elif estado == 7: #estado de incremento, deremento, multiplicação ou divisão
             char = readNext()
-
+            print("\nESTADO 7")
             print("lookhead: ", char)
 
-            if(char == '-'):
-                print("operador de subtração")
-                lexema = linha_atual[inicio_lexema:pos-1]
-                token = Token(count,'operador_decremento',lexema)
+            if char == None:
+                print("none")
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line,'delimitador',lexema)
                 estado = 0
-               # pos = pos-1
-                return token
+                listTokens.append(token)
+                pos = pos-1
+                break
+            
+            elif(char == '-'):
+                print("operador de subtração")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador_decremento',lexema)
+                estado = 0
+                pos = pos-1
+                listTokens.append(token)
 
             elif(char == '+'):
                 print("operador de adicao")
-                lexema = linha_atual[inicio_lexema:pos-1]
-                token = Token(count,'operador_incremento',lexema)
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador_incremento',lexema)
                 estado = 0
-               # pos = pos-1
-                return token
+                pos = pos-1
+                listTokens.append(token)
 
             #se o caracter anterior foi o / ou *
             #if(char.isspace() or char in ('.', ',', ':', ';', '/', '*', )): 
@@ -263,71 +351,112 @@ def nextToken(count):
             # um dos operadores e depois qualquer outra coisa q aí vai ter que jogar
             #  pro estado 0 (SUGESTAO) posso ta falando besteira... 
             print("É o ", caracter_anterior)
-            lexema = linha_atual[inicio_lexema:pos-1]
+            lexema = codigo[inicio_lexema:pos-1]
 
             if(caracter_anterior=='*'):
-                token = Token(count,'operador_multiplicacao',lexema)
+                token = Token(count_line,'operador_multiplicacao',lexema)
             if(caracter_anterior=='/'):
-                token = Token(count,'operador_divisao',lexema)
-            estado = 0
-            pos = pos-1
-            caracter_anterior=''
-            return token
-
-        elif estado == 8:
-             # ler o proximo, e muda o estado e sai.
-            char = readNext()
-
-            print("lookhead: ", char)
-
-            if(char.isspace()):
-                print("É DELIMITADOR")
-                lexema = linha_atual[inicio_lexema:pos-1]
-                if(caracter_anterior=="="):
-                    token = Token(count,'operador_atribuicao',lexema)
-                elif(caracter_anterior=="<"):
-                    token = Token(count,'operador_menorque',lexema)
-                elif(caracter_anterior==">"):
-                    token = Token(count,'operador_maiorque',lexema)
+                token = Token(count_line,'operador_divisao',lexema)
                 estado = 0
                 pos = pos-1
                 caracter_anterior=''
-                return token
+                listTokens.append(token)
+            if(char == '\n'):
+                print("FIM DE LINHA")
+                estado = 0
 
-            if char == '=':
+        elif estado == 8: #estado de igual, maior ou menor
+             # ler o proximo, e muda o estado e sai.
+            char = readNext()
+            print("\nESTADO 8")
+            print("lookhead: ", char)
+
+            if char == None:
+                print("none")
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line,'delimitador',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+                break
+
+            elif(char.isspace() or char in ('.', ',', ':', ';')):
+                print("É DELIMITADOR")
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                if(caracter_anterior=="="):
+                    token = Token(count_line,'operador_atribuicao',lexema)
+                elif(caracter_anterior=="<"):
+                    token = Token(count_line,'operador_menorque',lexema)
+                elif(caracter_anterior==">"):
+                    token = Token(count_line,'operador_maiorque',lexema)
+                estado = 0
+                pos = pos-1
+                caracter_anterior=''
+                listTokens.append(token)
+
+            elif char == '=':
                 print("É o ", char)
                 estado = 10 ##poderíamos fechar o lexama aqui? nem precisaria do estado 10
                 if(caracter_anterior=="="): 
-                    token = Token(count,'operador_igualdade',lexema)
+                    token = Token(count_line,'operador_igualdade',lexema)
                 elif(caracter_anterior=="<"):
-                    token = Token(count,'operador_menor_igual',lexema)
+                    token = Token(count_line,'operador_menor_igual',lexema)
                 elif(caracter_anterior==">"):
-                    token = Token(count,'operador_maior_igual',lexema)
-                lexema = linha_atual[inicio_lexema:pos-1]
+                    token = Token(count_line,'operador_maior_igual',lexema)
+                lexema = codigo[inicio_lexema:pos-1]
                 estado = 0
-                return token
+                listTokens.append(token)
+                pos = pos-1
 
             elif(char == '\n'):
                 print("FIM DE LINHA")
                 estado = 0
-                pass
-        elif estado == 9:
+            else:
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador_adicao',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+        
+        elif estado == 9: #estado de sinal de exclamação
              # ler o proximo, e muda o estado e sai.
             char = readNext()
-
+            print("\nESTADO 9")
             print("lookhead: ", char)
             if char == '=':
                 print("É o ", char)
                 estado = 10 ##poderíamos fechar o lexama aqui? nem precisaria do estado 10
-
-                lexema = linha_atual[inicio_lexema:pos-1]
-                token = Token(count,'operador_diferente_de',lexema)
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador_diferente_de',lexema)
                 estado = 0
-                return token
+                listTokens.append(token)
+                pos = pos-1
+            elif(char == '\n'):
+                print("FIM DE LINHA")
+                estado = 0
 
-            # elif(ERROR)
-
-        
+        elif estado == 19: #estado de delimitadores
+            # ler o proximo, e muda o estado e sai.
+            char = readNext()
+            print("\nESTADO 19")
+            print("lookhead: ", char)
+            if char == None:
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line,'delimitador',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+                break
+            elif char in ('.', ',', ':', ';') or char == '\n' or char.isspace():
+                print("delimitador")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'delimitador',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+                
+            
 
 
         
@@ -358,23 +487,32 @@ def nextToken(count):
                 listTokens = msg[inicio_lexema-1:pos]
                 print("token: ", listTokens)'''
             
-            
-            
-
 def readNext():
     global pos
-    char = linha_atual[pos]
+    global file
+    global codigo
+    if pos == len(codigo):
+        return None
+    char = codigo[pos]
     pos+=1
     return char
 
-# verificar um token
-count = 1
-for linha in msg:
-    linha_atual = linha
-    for letra in linha:
-        token = nextToken(count)
-        if token is not None:
-            print(token.get())
-        else:
-            break
-    count += 1 
+
+
+# mensagem = input()
+estado = 0
+pos = 0
+listTokens = []
+Arraylist = []
+count_line = 0
+
+file = open("digito.txt", "r")
+codigo = file.read()
+
+listToken()
+for token in listTokens:
+    print(token.get())
+
+
+
+file.close()
