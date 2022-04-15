@@ -63,13 +63,11 @@ def listToken():
                 estado = 5
                 inicio_lexema = pos-1
                 
-
             elif char == '-':
                 print("É o '-' ")
                 estado = 6
                 inicio_lexema = pos-1
                 
-
             elif char in ('/', '*'):
                 print("É o ", char)
                 estado = 7
@@ -89,11 +87,13 @@ def listToken():
 
             elif char == '&':
                 print("É o ", char)
+                caracter_anterior = char;
                 estado = 11
                 inicio_lexema = pos-1
 
             elif char == '|':
                 print("É o ", char)
+                caracter_anterior = char;
                 estado = 12
                 inicio_lexema = pos-1
 
@@ -435,6 +435,50 @@ def listToken():
             elif(char == '\n'):
                 print("FIM DE LINHA")
                 estado = 0
+
+        elif estado == 13:
+            char = readNext()
+            print("\nESTADO ", estado)
+            ##aqui tem-se um erro - operador lógico incompleto.
+            if char == None:
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line,'delimitador',lexema)
+                estado = 0
+                listTokens .append(token)
+                pos = pos-1
+                break
+            elif char in ('.', ',', ':', ';') or char == '\n' or char.isspace():
+                print("delimitador")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'delimitador',lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+            elif char == '&' and caracter_anterior == '&':
+                print("operador lógico E")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador lógico &&',lexema)
+                estado = 0
+                listTokens.append(token)
+                #pos = pos-1
+            elif char == '&' and caracter_anterior == '|':
+                print("&| error")
+                #ERROR
+            elif char == '|' and caracter_anterior == '&':
+                print("|& error")
+            elif char == '|' and caracter_anterior == '|':
+                print("operador lógico OU")
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line,'operador lógico ||',lexema)
+                estado = 0
+                listTokens.append(token)
+                #pos = pos-1
+            else:
+                print ("outher", char)
+                #ERRO
+            
+                
+                
 
         elif estado == 19: #estado de delimitadores
             # ler o proximo, e muda o estado e sai.
