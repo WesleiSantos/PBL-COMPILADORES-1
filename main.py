@@ -32,6 +32,7 @@ def listToken():
     inicio_lexema = 0
     caracter_anterior = ''
     delimitadores = ('.', ',', ':', ';', '(', ')', '[', ']', '{', '}')
+    reservation_words = ("program", "var", "const","register","function", "procedure","return", "main", "if", "else", "while","read","write", "integer", "real","boolean","char", "string", "true", "false")
 
     while True:
         if estado == 0:  # estado inicial
@@ -139,6 +140,40 @@ def listToken():
                 count_line += 1
                 estado = 0
                 inicio_lexema = pos-1
+        elif estado == 1:
+            # ler o proximo, e muda o estado e sai.
+            char = readNext()
+            print("\nESTADO 1")
+            print("lookhead: ", char)
+
+            if char == None:
+                print("none")
+                lexema = codigo[inicio_lexema:pos]
+                if(lexema in reservation_words):
+                    token = Token(count_line, 'palavra reservada', lexema)
+                else:
+                    token = Token(count_line, 'identificador', lexema)
+                estado = 0
+                listTokens.append(token)
+                break
+            elif(char.isspace() or char in delimitadores or char == "\n"):
+                print("identificador")
+                print("SALVA TOKEN")
+                lexema = codigo[inicio_lexema:pos-1]
+                if(lexema in reservation_words):
+                    token = Token(count_line, 'palavra reservada', lexema)
+                else:
+                    token = Token(count_line, 'identificador', lexema)
+                listTokens.append(token)
+                estado = 0
+                pos=pos-1
+            elif char.isalpha() and semAcento(char) or char in (1, 2, 3, 4, 5, 6, 7, 8, 9, 0, "_"):
+                print("É UMA LETRA")
+                estado = 1
+            else:
+                estado = 556 #estado de erro
+
+
 
         elif estado == 2:  # estado de digito
 
@@ -671,6 +706,25 @@ def listToken():
             else: 
                 estado = 555
 
+        elif estado == 556: ##ERRO DE INDETIFICADOR MAL FORMADO
+            char = readNext()
+            print("\nESTADO DE ERRO ", estado)
+            print("lookhead: ", char)
+
+            if(char == None):  # ERRO
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line, 'identificador mal formado', lexema)
+                estado = 0
+                listTokens.append(token)
+                break
+            elif(char == "\n" or char in delimitadores or char.isspace()):
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line, 'identificador mal formado', lexema)
+                estado = 0
+                listTokens.append(token)
+                pos=pos-1
+            else: 
+                estado = 556
 
 
             '''print("I = ", i)
@@ -713,7 +767,7 @@ listTokens = []
 Arraylist = []
 count_line = 0
 
-file = open("caracteres.txt", "r")
+file = open("letras.txt", "r")
 codigo = file.read()
 
 listToken()
