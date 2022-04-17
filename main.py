@@ -372,6 +372,8 @@ def listToken():
                 pos = pos-1
                 listTokens.append(token)
                 caracter_anterior=''
+            elif(caracter_anterior == '/' and char == '#'):
+                estado = 15
             elif(caracter_anterior == '/'):
                 print("operador de divisão")
                 lexema = codigo[inicio_lexema:pos-1]
@@ -633,7 +635,68 @@ def listToken():
                 pos = pos-1
             else:
                 print ("outher", char)
-                #ERRO
+
+        elif estado == 14:  # Comentário de linha
+            char = readNext()
+            print("\nESTADO ", estado)
+            # aqui tem-se um erro - operador lógico incompleto.
+            if char == None :
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line, 'comentario_de_linha', lexema)
+                listTokens.append(token)
+                break
+            elif char == '\n':
+                lexema = codigo[inicio_lexema:pos-1]
+                token = Token(count_line, 'comentario_de_linha', lexema)
+                estado = 0
+                listTokens.append(token)
+                pos = pos-1
+            else:
+                estado=14
+
+        elif estado == 15:  # Comentário de bloco #
+            char = readNext()
+            print("\nESTADO ", estado)
+            # aqui tem-se um erro - operador lógico incompleto.
+            if char == None :
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line, 'comentario_de_bloco_mal_formado', lexema)
+                listTokens.append(token)
+                break
+            elif char == '#':
+                estado = 16
+            else:
+                estado=15
+        
+        elif estado == 16:  # Comentário de bloco #
+            char = readNext()
+            print("\nESTADO ", estado)
+            # aqui tem-se um erro - operador lógico incompleto.
+            if char == None :
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line, 'comentario_de_bloco_mal_formado', lexema)
+                listTokens.append(token)
+                break
+            elif char == '/':
+                estado=17
+            else:
+                estado=15
+        
+        elif estado == 17:  # Comentário de bloco
+            char = readNext()
+            print("\nESTADO ", estado)
+            # aqui tem-se um erro - operador lógico incompleto.
+            if char == None :
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line, 'comentario_de_bloco', lexema)
+                listTokens.append(token)
+                break
+            else:
+                lexema = codigo[inicio_lexema:pos]
+                token = Token(count_line, 'comentario_de_bloco', lexema)
+                listTokens.append(token)
+                estado = 0
+
         elif estado == 19:  # estado de delimitadores
             # ler o proximo, e muda o estado e sai.
             char = readNext()
@@ -806,28 +869,6 @@ def listToken():
                 estado = 556
 
 
-            '''print("I = ", i)
-            print("POSITION= ", pos)
-        elif estado == 1:
-            print("POSICAO", pos)
-            char = readNext()
-            if(char.isalpha() or char.isnumeric() or char=='_'):
-                if(char.isalpha() and semAcento(char)):
-                    print("CARACTER SEM ACENTO")
-                    estado = 1
-                    
-
-                estado = 1
-            else: #o proximo caracter nao é nem L, D ou _
-                pos-=1
-                estado=0
-                
-            i+=1
-            if(pos==len(msg)):
-                listTokens = msg[inicio_lexema-1:pos]
-                print("token: ", listTokens)'''
-
-
 def readNext():
     global pos
     global file
@@ -846,7 +887,7 @@ listTokens = []
 Arraylist = []
 count_line = 0
 
-file = open("identificador_palavras_reservadas.txt", "r")
+file = open("comentarios.txt", "r")
 codigo = file.read()
 
 listToken()
