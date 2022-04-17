@@ -155,11 +155,18 @@ def listToken():
                 listTokens.append(token)
                 estado = 0
                 pos=pos-1
-            elif char.isalpha() and semAcento(char) or char in (1, 2, 3, 4, 5, 6, 7, 8, 9, 0, "_"):
+            elif ((char.isalpha() and semAcento(char)) or char.isnumeric() or char == "_"):
                 print("É UMA LETRA")
                 estado = 1
             else:
-                estado = 556 #estado de erro
+                lexema = codigo[inicio_lexema:pos-1]
+                if(lexema in reservation_words):
+                    token = Token(count_line, 'palavra reservada', lexema)
+                else:
+                    token = Token(count_line, 'identificador', lexema)
+                listTokens.append(token)
+                estado = 0
+                pos = pos-1
 
         elif estado == 2:  # estado de digito
 
@@ -171,11 +178,16 @@ def listToken():
             if char == None:
                 print("none")
                 lexema = codigo[inicio_lexema:pos]
-                token = Token(count_line, 'delimitador', lexema)
+                token = Token(count_line, 'inteiro', lexema)
                 estado = 0
                 listTokens.append(token)
                 pos = pos-1
                 break
+            
+            elif(char == '.'):  # ou ter um limitador(float)
+                print("É DELIMITADOR . ")
+                estado = 3
+
             elif(char.isspace() or char in delimitadores):
                 print("É DELIMITADOR")
                 print("SALVA TOKEN")
@@ -189,10 +201,6 @@ def listToken():
                 print("É UM DIGITO")
                 estado = 2
                 #inicio_lexema = pos-1
-
-            elif(char == '.'):  # ou ter um limitador(float)
-                print("É DELIMITADOR . ")
-                estado = 3
 
             elif(char == '\n'):
                 print("FIM DE LINHA")
@@ -234,7 +242,7 @@ def listToken():
             if char == None:
                 print("none")
                 lexema = codigo[inicio_lexema:pos]
-                token = Token(count_line, 'delimitador', lexema)
+                token = Token(count_line, 'ponto_flutuante', lexema)
                 estado = 0
                 listTokens.append(token)
                 pos = pos-1
@@ -248,7 +256,7 @@ def listToken():
                 print("É DELIMITADOR")
                 print("SALVA TOKEN")
                 lexema = codigo[inicio_lexema:pos-1]
-                token = Token(count_line, 'ponto flutuante', lexema)
+                token = Token(count_line, 'ponto_flutuante', lexema)
                 estado = 0
                 pos = pos-1
                 listTokens.append(token)
@@ -259,7 +267,7 @@ def listToken():
                 print("É OUTRO CARACTER")
                 print("SALVA TOKEN")
                 lexema = codigo[inicio_lexema:pos-1]
-                token = Token(count_line, 'ponto flutuante', lexema)
+                token = Token(count_line, 'ponto_flutuante', lexema)
                 estado = 0
                 listTokens.append(token)
                 pos = pos-1
@@ -887,7 +895,7 @@ listTokens = []
 Arraylist = []
 count_line = 0
 
-file = open("comentarios.txt", "r")
+file = open("Exemplo1.txt", "r")
 codigo = file.read()
 
 listToken()
