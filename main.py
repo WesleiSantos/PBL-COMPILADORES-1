@@ -1,13 +1,3 @@
-# myfile = open('c:/Users/dhoml/Desktop/example.txt')
-# file = open('example.txt', 'r')
-# print("meu arquivo: ", myfile.read)
-
-# from turtle import pos
-# from unicodedata import combining
-# import numpy;
-# from unicodedata import normalize
-
-# from nbformat import read
 import read
 from token import Token
 
@@ -33,7 +23,6 @@ def listToken():
     delimitadores = ('.', ',', ':', ';', '(', ')', '[', ']', '{', '}')
     reservation_words = ("program", "var", "const","register","function", "procedure","return", "main", "if", "else", "while","read","write", "integer", "real","boolean","char", "string", "true", "false")
     while True:
-
         if estado == 0:  # estado inicial
             # ler o proximo, e muda o estado e sai.
             print("\nESTADO 0")
@@ -127,7 +116,7 @@ def listToken():
                 count_line += 1
                 estado = 0
                 inicio_lexema = pos-1
-    
+                
         elif estado == 1:  # estado de identificador
             # ler o proximo, e muda o estado e sai.
             char = readNext()
@@ -792,7 +781,7 @@ def listToken():
             else:
                 estado = 24  
 
-        elif estado == 24:  
+        elif estado == 24:  # estado para caracter
             # ler o proximo, e muda o estado e sai.
             char = readNext()
             print("\nESTADO 23")
@@ -815,7 +804,7 @@ def listToken():
             else:
                 estado = 555 #AQUI ENTRA UM CASSO DE ERRO. EX: 'ab;
         
-        elif estado == 25:
+        elif estado == 25: # estado para caracter
             # ler o proximo, e muda o estado e sai.
             char = readNext()
             print("\nESTADO ", estado)
@@ -876,7 +865,6 @@ def listToken():
             else: 
                 estado = 556
 
-
 def readNext():
     global pos
     global file
@@ -893,7 +881,7 @@ estado = 0
 pos = 0
 listTokens = []
 Arraylist = []
-count_line = 0
+count_line = 1
 
 file = open("Exemplo1.txt", "r")
 codigo = file.read()
