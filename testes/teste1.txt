@@ -1,0 +1,21 @@
+program TestePBL;
+
+b = 'aaa;
+
+for(integer i = 0:i < 9;i++){
+	"ddsdasda;
+
+while (true){
+
+}
+
+@var
+
++++;
+&&
+/# Comentario em bloco
+aa
+a
+a
+a#/
+%"em linha"

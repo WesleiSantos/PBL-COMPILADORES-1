@@ -1,0 +1,5 @@
+aaa$bbb
+_aaa
+a2@aa
+aaa=$bbb
+

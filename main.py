@@ -768,13 +768,13 @@ def listToken():
                 estado = 25
             elif(char == None):  # ERRO
                 lexema = codigo[inicio_lexema:pos]
-                token = Token(count_line, 'caracter invalido', lexema)
+                token = Token(count_line, 'caracter_mal_formado', lexema)
                 estado = 0
                 listTokens.append(token)
                 break
             elif(char == "\n"):
                 lexema = codigo[inicio_lexema:pos-1]
-                token = Token(count_line, 'caracter invalido', lexema)
+                token = Token(count_line, 'caracter_mal_formado', lexema)
                 estado = 0
                 listTokens.append(token)
                 pos=pos-1
@@ -791,13 +791,13 @@ def listToken():
                 estado = 25
             elif(char == None):  # ERRO
                 lexema = codigo[inicio_lexema:pos]
-                token = Token(count_line, 'caracter invalido', lexema)
+                token = Token(count_line, 'caracter_mal_formado', lexema)
                 estado = 0
                 listTokens.append(token)
                 break
             elif(char == "\n"):
                 lexema = codigo[inicio_lexema:pos-1]
-                token = Token(count_line, 'caracter invalido', lexema)
+                token = Token(count_line, 'caracter_mal_formado', lexema)
                 estado = 0
                 listTokens.append(token)
                 pos=pos-1
@@ -826,19 +826,19 @@ def listToken():
 
             if(char == None):  # ERRO
                 lexema = codigo[inicio_lexema:pos]
-                token = Token(count_line, 'caracter invalido', lexema)
+                token = Token(count_line, 'caracter_mal_formado', lexema)
                 estado = 0
                 listTokens.append(token)
                 break
             elif(char == "\n" or char in delimitadores or char.isspace()):
                 lexema = codigo[inicio_lexema:pos-1]
-                token = Token(count_line, 'caracter invalido', lexema)
+                token = Token(count_line, 'caracter_mal_formado', lexema)
                 estado = 0
                 listTokens.append(token)
                 pos=pos-1
             elif(char == "'"):
                 lexema = codigo[inicio_lexema:pos-1]
-                token = Token(count_line, 'caracter invalido', lexema)
+                token = Token(count_line, 'caracter_mal_formado', lexema)
                 estado = 0
                 listTokens.append(token)
                 pos=pos-1
@@ -876,6 +876,7 @@ def readNext():
     return char
 
 
+
 # mensagem = input()
 estado = 0
 pos = 0
@@ -883,7 +884,7 @@ listTokens = []
 Arraylist = []
 count_line = 1
 
-file = open("Exemplo1.txt", "r")
+file = open("casos_de_erro/caracteres.txt", "r")
 codigo = file.read()
 
 listToken()
