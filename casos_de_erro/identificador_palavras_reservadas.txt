@@ -1,5 +1,5 @@
-aaa$bbb
-_aaa
+aaa$@@bbb$aaa
+aaa5454__=
 a2@aa
 aaa=$bbb
 
