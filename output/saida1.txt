@@ -231,5 +231,5 @@
 <78,delimitador,;>
 <79,delimitador,}>
 
-----------------------AN√ÅLISE L√âXICA CONCLUIDA SEM ERROS-----------------------
+----------------------AN¡LISE L…XICA CONCLUIDA SEM ERROS-----------------------
 
