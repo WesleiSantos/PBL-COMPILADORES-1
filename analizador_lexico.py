@@ -1,4 +1,5 @@
 from token import Token
+import os
 
 class analizador_lexico:
     def __init__(self) -> None:
@@ -17,11 +18,12 @@ class analizador_lexico:
 
     # retorna true se o caracter é sem acento
     def semAcento(self,char):
-        if char in ('á', 'à', 'â', 'ã', 'ç', 'í', 'ì', 'î', 'ñ', 'û', 'ú', 'ù', 'ó', 'ô', 'õ'):
+        if char in ('á', 'à', 'â', 'ã', 'é', 'ê', 'è','ç', 'í', 'ì', 'î', 'ñ', 'û', 'ú', 'ù', 'ó', 'ô', 'õ'):
             print("Caracter com acento!")
             return False
         elif char in ('á'.upper(), 'à'.upper(), 'â'.upper(), 'ã'.upper(), 'ç'.upper(), 'ì'.upper(),
-                      'í'.upper(), 'î'.upper(), 'û'.upper(), 'ú'.upper(), 'ù'.upper(), 'ó'.upper(), 'ô'.upper(), 'õ'.upper()):
+                        'é'.upper(), 'ê'.upper(), 'è'.upper(),'í'.upper(), 'î'.upper(), 'û'.upper(), 
+                        'ú'.upper(), 'ù'.upper(), 'ó'.upper(), 'ô'.upper(), 'õ'.upper()):
             print("Caracter com acento!")
             return False
         return True
@@ -911,11 +913,23 @@ class analizador_lexico:
         self.pos += 1
         return char
 
+def readFiles():
+    os.chdir("./casos_de_erro")
+    num_file = 1
+    for file in os.listdir(): 
+        if file.endswith(".txt"): 
+            file_exit = open('./../saida'+str(num_file)+'.txt', 'w+')
+            analizador = analizador_lexico()
+            analizador.readArchive(file)
+            tokens = analizador.listToken()
+            for token in tokens:
+                print(token.get())
+                file_exit.write(token.get()+"\n")
+            file_exit.close()
+            num_file+=1
+            
+            
 if __name__ == '__main__':
-    analizador = analizador_lexico()
-    analizador.readArchive("casos_de_erro/digito.txt")
-    tokens = analizador.listToken()
-    for token in tokens:
-        print(token.get())
+    readFiles()
 
 
