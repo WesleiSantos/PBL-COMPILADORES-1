@@ -1,14 +1,14 @@
 from token import Token
 import os
 
-class analizador_lexico:
-    def __init__(self) -> None:
+class Analizador_lexico:
+    def __init__(self, symbol_table) -> None:
         self.estado = 0
         self.pos = 0
         self.Arraylist = []
         self.count_line = 1
         self.codigo = ''
-        self.reservation_words = ("program", "var", "const","register","function", "procedure","return", "main", "if", "else", "while","read","write", "integer", "real","boolean","char", "string", "true", "false","for")
+        self.reservation_words = symbol_table
 
     # Ler arquivo de texto com o código a ser analizado
     def readArchive(self,path):
@@ -288,7 +288,7 @@ class analizador_lexico:
                 if char == None:
                     print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
-                    token = Token(self.count_line, 'delimitador', lexema)
+                    token = Token(self.count_line, 'operador_adicao', lexema)
                     self.estado = 0
                     listTokens.append(token)
                     self.pos = self.pos-1
@@ -943,46 +943,46 @@ class analizador_lexico:
         self.pos += 1
         return char
 
-def sum_digits(digit):
-    num=''
-    for x in digit:
-         if x.isdigit():
-            num=num+x
-    return num
+    #separa numeração do nome do arquivo
+    def sum_digits(self,text):
+        num=''
+        for x in text:
+             if x.isdigit():
+                num=num+x
+        return num
 
-def list_tokens_valid(token):
-    return not token.hasError()
+    #tokens válidos
+    def list_tokens_valid(self,token):
+        return not token.hasError()
 
-def list_tokens_error(token):
-    return token.hasError()
+    #tokens inválidos
+    def list_tokens_error(self,token):
+        return token.hasError()
 
-#LER TODOS OS ARQUIVOS .txt PRESENTES NA PASTA INPUT
-def readFiles():
-    cwd = os.getcwd()
-    files = os.listdir(cwd+"/input")
-    for file in files:
-        num =  sum_digits(file)
-        if file.endswith(".txt"): 
-            #cria um arquivo de saída 
-            file_exit = open(cwd+"/output"+'/saida'+num+'.txt', 'w+')
-            analizador = analizador_lexico()
-            analizador.readArchive(cwd+"/input/"+file) #analisa o arquivo
-            tokens = analizador.listToken()
-            #obtei o os tokens válidos e inválidos
-            tokens_valid = list(filter(list_tokens_valid,tokens))
-            tokens_not_valid = list(filter(list_tokens_error,tokens))
-            for token in tokens_valid:
-                file_exit.write(token.get()+"\n")
-            if len(tokens_not_valid) > 0:
-                file_exit.write("\n"+"----------------------------------ERROS----------------------------------"+"\n\n")
-                for token in tokens_not_valid:
+    #LER TOKENS DOS ARQUIVOS .txt PRESENTES NA PASTA INPUT E ESCREVE NA PASTA OUTPUT
+    def readTokensFiles(self):
+        cwd = os.getcwd()
+        files = os.listdir(cwd+"/input")
+        for file in files:
+            num =  self.sum_digits(file)
+            if file.endswith(".txt"): 
+                #cria um arquivo de saída 
+                file_exit = open(cwd+"/output"+'/saida'+num+'.txt', 'w+')
+                self.readArchive(cwd+"/input/"+file) #analisa o arquivo
+                tokens = self.listToken()
+                #obtei o os tokens válidos e inválidos
+                tokens_valid = list(filter(self.list_tokens_valid,tokens))
+                tokens_not_valid = list(filter(self.list_tokens_error,tokens))
+                for token in tokens_valid:
                     file_exit.write(token.get()+"\n")
-            else:
-                file_exit.write("\n"+"----------------------ANÁLISE LÉXICA CONCLUIDA SEM ERROS-----------------------"+"\n\n")
-            file_exit.close()            
-            
-if __name__ == '__main__':
-    readFiles()
-    print("\n_________________________\nANÁLISE LÉXICA CONCLUÍDA\n_________________________")
+                if len(tokens_not_valid) > 0:
+                    file_exit.write("\n"+"----------------------------------ERROS----------------------------------"+"\n\n")
+                    for token in tokens_not_valid:
+                        file_exit.write(token.get()+"\n")
+                else:
+                    file_exit.write("\n"+"----------------------ANÁLISE LÉXICA CONCLUIDA SEM ERROS-----------------------"+"\n\n")
+                file_exit.close()
+                print("\n_________________________\nANÁLISE LÉXICA CONCLUÍDA\n_________________________")            
+    
 
 
