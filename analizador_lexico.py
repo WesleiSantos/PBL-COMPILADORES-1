@@ -16,7 +16,7 @@ class analizador_lexico:
         self.codigo = file.read()
         file.close()
 
-    # retorna true se o caracter é sem acento
+    # retorna true se o caracter é SEM acento
     def semAcento(self,char):
         if char in ('á', 'à', 'â', 'ã', 'é', 'ê', 'è','ç', 'í', 'ì', 'î', 'ñ', 'û', 'ú', 'ù', 'ó', 'ô', 'õ'):
             print("Caracter com acento!")
@@ -37,18 +37,18 @@ class analizador_lexico:
         
         while True:
             if self.estado == 0:  # estado inicial
-                # ler o proximo, e muda o estado e sai.
-                print("\nESTADO 0")
+                # ler o proximo, muda o estado e sai.
+                print("\nESTADO", self.estado)
                 char = self.readNext()
                 print("lookhead: ", char)
 
-                if char == None:
+                if char == None: #fim de arquivo
                     break
 
-                if(char == '\n'):
+                if(char == '\n'): 
                     self.count_line += 1
 
-                if(char.isspace()):
+                if(char.isspace()): 
                     print("É UM ESPAÇO")
                     self.estado = 0
                     inicio_lexema = self.pos-1
@@ -58,16 +58,18 @@ class analizador_lexico:
                     self.estado = 2
                     inicio_lexema = self.pos-1
 
-                # é uma letra, exceto ç - falta colocar exececoes nas letras com acentos.
+                # é uma letra e SEM acento
                 elif char.isalpha() and self.semAcento(char):
                     print("É UMA LETRA")
                     self.estado = 1
-
-                    # como a posicao foi para 1 precisa-se usar a posicao anterior caso forme um token
-                    inicio_lexema = self.pos-1
+                    ##inicia um token - pega a posição anterior, pois o cursor está à frente quando 
+                    # ele lê um caracter na função readNext()
+                    inicio_lexema = self.pos-1 
+                    
                 elif char == '+':
                     print("É o '+' ")
-                    caracter_anterior = char
+                    #guarda-se o caracter afim de saber qual iniciou o lexama, já que os operadores + - * / vão para o estado 7 (diretamente / indiretamente)
+                    caracter_anterior = char 
                     self.estado = 5
                     inicio_lexema = self.pos-1
 
@@ -81,7 +83,7 @@ class analizador_lexico:
                     print("É o Veio", char)
                     self.estado = 7
                     caracter_anterior = char
-                    inicio_lexema = self.pos-1  # aqui poderíamos fechar o token , pós nao pode vim outra / ou *
+                    inicio_lexema = self.pos-1  
 
                 elif char in ('=', '<', '>'):
                     print("É o ", char)
@@ -112,17 +114,17 @@ class analizador_lexico:
                     self.estado = 14
                     inicio_lexema = self.pos-1
 
-                elif(char in delimitadores):  # delimitadores
+                elif(char in delimitadores):  # DELIMITADOR
                     print("É o ", char)
                     self.estado = 19
                     inicio_lexema = self.pos-1
 
-                elif char == "\"":  # CADEIRA DE CARACTEREs
+                elif char == "\"":  #AQUI PODE INICIAR UMA CADEIRA DE CARACTERES
                     print("É o ", char)
                     self.estado = 20
                     inicio_lexema = self.pos-1
 
-                elif char == "'":  # caracter
+                elif char == "'":  # INICIO DE UM CARACTER
                     print("É o ", char)
                     self.estado = 23
                     inicio_lexema = self.pos-1
@@ -139,15 +141,15 @@ class analizador_lexico:
                     self.estado = 559
 
             elif self.estado == 1:  # estado de identificador
-                # ler o proximo, e muda o estado e sai.
+                # ler o proximo, muda o estado e sai.
                 char = self.readNext()
-                print("\nESTADO 1")
+                print("\nESTADO", self.estado)
                 print("lookhead: ", char)
 
                 if char == None:
-                    print("none")
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
-                    if(lexema in self.reservation_words):
+                    if(lexema in self.reservation_words):#verifica se é uma palavra reservada
                         token = Token(self.count_line, 'palavra_reservada', lexema)
                     else:
                         token = Token(self.count_line, 'identificador', lexema)
@@ -156,7 +158,6 @@ class analizador_lexico:
                     break
                 elif(char.isspace() or char in delimitadores or char == "\n"):
                     print("identificador")
-                    print("SALVA TOKEN")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     if(lexema in self.reservation_words):
                         token = Token(self.count_line, 'palavra_reservada', lexema)
@@ -167,7 +168,6 @@ class analizador_lexico:
                     self.pos=self.pos-1
                 elif char in ['+','-','/', '*','=', '<', '>','!','&','|','%',"\"","'"]:
                     print("identificador")
-                    print("SALVA TOKEN")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     if(lexema in self.reservation_words):
                         token = Token(self.count_line, 'palavra_reservada', lexema)
@@ -183,14 +183,13 @@ class analizador_lexico:
                     self.estado = 556
 
             elif self.estado == 2:  # estado de digito
-
                 # ler o proximo, e muda o estado e sai.
                 char = self.readNext()
                 print("\nESTADO 2")
                 print("lookhead: ", char)
 
                 if char == None:
-                    print("none")
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'inteiro', lexema)
                     self.estado = 0
@@ -198,11 +197,11 @@ class analizador_lexico:
                     self.pos = self.pos-1
                     break
                 
-                elif(char == '.'):  # ou ter um limitador(float)
+                elif(char == '.'):  # ou ter um delimitador . (float)
                     print("É DELIMITADOR . ")
                     self.estado = 3
 
-                elif(char.isspace() or char in delimitadores):
+                elif(char.isspace() or char in delimitadores): #ENCONTRA UM ESPAÇO OU UM DELIMITADOR
                     print("É DELIMITADOR")
                     print("SALVA TOKEN")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
@@ -214,7 +213,6 @@ class analizador_lexico:
                 elif (char.isnumeric()):  # depois de um dígito pode ter outro
                     print("É UM DIGITO")
                     self.estado = 2
-                    #inicio_lexema = self.pos-1
 
                 elif(char == '\n'):
                     print("FIM DE LINHA")
@@ -222,20 +220,20 @@ class analizador_lexico:
                     self.pos = self.pos-1
                     
                 else:
-                    print("É OUTRO CARACTER")
-                    print("SALVA TOKEN")
-                    lexema = self.codigo[inicio_lexema:self.pos-1]
-                    token = Token(self.count_line, 'inteiro', lexema)
-                    listTokens.append(token)
-                    self.estado = 0
-                    self.pos = self.pos-1
+                    ##print("É OUTRO CARACTER")
+                    ##lexema = self.codigo[inicio_lexema:self.pos-1]
+                    ##token = Token(self.count_line, 'inteiro', lexema)
+                    ##listTokens.append(token)
+                    ##self.estado = 0
+                    ##self.pos = self.pos-1
+                    self.estado = 557
 
             elif self.estado == 3:  # estado do ponto "flutuante"
                 char = self.readNext()
                 print("\nESTADO 3")
                 print("lookhead: ", char)
 
-                if char.isnumeric():  # depois de um . tem um digito
+                if char.isnumeric():  # depois de um . tem um dígito
                     print("É UM DIGITO")
                     self.estado = 4
                 else:
@@ -248,7 +246,7 @@ class analizador_lexico:
                 print("lookhead: ", char)
 
                 if char == None:
-                    print("none")
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'ponto_flutuante', lexema)
                     self.estado = 0
@@ -256,7 +254,7 @@ class analizador_lexico:
                     self.pos = self.pos-1
                     break
 
-                elif(char.isnumeric()):  # depois de um . tem um digito
+                elif(char.isnumeric()): #DEPOIS DE UM NUMERO APÓS O . TEM MAIS OUTROS
                     print("É UM DIGITO")
                     self.estado = 4
 
@@ -275,7 +273,6 @@ class analizador_lexico:
 
                 else:
                     print("É OUTRO CARACTER")
-                    print("SALVA TOKEN")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     token = Token(self.count_line, 'ponto_flutuante', lexema)
                     self.estado = 0
@@ -283,13 +280,13 @@ class analizador_lexico:
                     self.pos = self.pos-1
 
             elif self.estado == 5:  # estado sinal de adição
-                # ler o proximo, e muda o estado e sai.
+                # ler o proximo, muda o estado e sai.
                 char = self.readNext()
                 print("\nESTADO 5")
                 print("lookhead: ", char)
 
                 if char == None:
-                    print("none")
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'delimitador', lexema)
                     self.estado = 0
@@ -299,7 +296,6 @@ class analizador_lexico:
 
                 elif(char.isspace() or char in delimitadores):
                     print("É DELIMITADOR")
-                    print("SALVA TOKEN")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     token = Token(self.count_line, 'operador_adicao', lexema)
                     self.estado = 0
@@ -329,7 +325,7 @@ class analizador_lexico:
                 print("lookhead: ", char)
 
                 if char == None:
-                    print("none")
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'delimitador', lexema)
                     self.estado = 0
@@ -339,7 +335,6 @@ class analizador_lexico:
 
                 elif(char.isspace() or char in delimitadores):
                     print("É DELIMITADOR")
-                    print("SALVA TOKEN")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     token = Token(self.count_line, 'operador_subtracao', lexema)
                     self.estado = 0
@@ -355,7 +350,6 @@ class analizador_lexico:
                     print("FIM DE LINHA")
                     self.estado = 0
                 else:
-                    print("SALVA TOKEN")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     token = Token(self.count_line, 'operador_subtracao', lexema)
                     self.estado = 0
@@ -368,7 +362,7 @@ class analizador_lexico:
                 print("lookhead: ", char)
                 print(caracter_anterior)
                 if char == None:
-                    print("none")
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'delimitador', lexema)
                     self.estado = 0
@@ -414,9 +408,9 @@ class analizador_lexico:
                     print("FIM DE LINHA")
                     self.estado = 0
 
-            elif self.estado == 8:  # estado de igual, maior ou menor
-                # ler o proximo, e muda o estado e sai.
-                char = self.readNext()
+            elif self.estado == 8:  # estado de operador de atribuição = , maior que >  ou menor que <
+                # ler o proximo, muda o estado e sai.
+                char = self.readNext() 
                 print("\nESTADO 8")
                 print("lookhead: ", char)
                 if char == None:
@@ -445,7 +439,7 @@ class analizador_lexico:
                     listTokens.append(token)
                 elif char == '=':
                     print("É o ", char)
-                    self.estado = 10  # poderíamos fechar o lexama aqui? nem precisaria do estado 10
+                    self.estado = 10  
                 elif(char == '\n'):
                     self.pos = self.pos-1
                     print("FIM DE LINHA")
@@ -463,18 +457,19 @@ class analizador_lexico:
                     self.pos = self.pos-1
 
             elif self.estado == 9:  # estado de sinal de exclamação
-                # ler o proximo, e muda o estado e sai.
+                # ler o proximo,muda o estado e sai.
                 char = self.readNext()
                 print("\nESTADO 9")
                 print("lookhead: ", char)
                 if char == None:
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line,'operador_de_negacao',lexema)
                     listTokens.append(token)
                     break
                 elif char == '=':
                     print("É o ", char)
-                    estado = 10  # poderíamos fechar o lexama aqui? nem precisaria do estado 10
+                    estado = 10  
                 elif char in delimitadores or char.isspace():
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     token = Token(self.count_line,'operador_de_negacao',lexema)
@@ -490,7 +485,7 @@ class analizador_lexico:
                     caracter_anterior = ''
                     self.estado = 0
 
-            elif self.estado == 10:  # estado de igual, maior ou menor
+            elif self.estado == 10:  # estado de == , >=, <= ou !=
                 # ler o proximo, e muda o estado e sai.
                 char = self.readNext()
                 print("\nESTADO 10")
@@ -534,7 +529,6 @@ class analizador_lexico:
                     self.estado = 0
                 elif(char.isspace() or char in delimitadores):
                     print("É DELIMITADOR")
-                    print("SALVA TOKEN")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     self.estado = 0
                     self.pos = self.pos-1
@@ -547,6 +541,7 @@ class analizador_lexico:
                     listTokens.append(token)
                     self.pos = self.pos-1
                 if char == None:
+                    print("FIM DE ARQUIVO")
                     break
 
             elif self.estado == 11:  # estado sinal de &
@@ -556,11 +551,12 @@ class analizador_lexico:
                 print("lookhead: ", char)
 
                 if char == None:
+                    print("FIM DE ARQUIVO")
                     self.estado = 561
                 elif char == '&':
                     print("É o", char)
                     self.estado = 13
-                else:
+                else: ##estado de erro
                     self.estado = 561
                     self.pos = self.pos-1
 
@@ -571,12 +567,13 @@ class analizador_lexico:
                 print("lookhead: ", char)
 
                 if char == None:
+                    print("FIM DE ARQUIVO")
                     self.estado = 561
                     self.pos = self.pos-1
                 elif char == '|':
                     print("É o", char)
                     self.estado = 13
-                else:
+                else: ##estado de erro
                     self.estado = 561
                     self.pos = self.pos-1
 
@@ -586,6 +583,7 @@ class analizador_lexico:
                 # aqui tem-se um erro - operador lógico incompleto.
                 print(caracter_anterior)
                 if char == None :
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     if caracter_anterior == '&':
                         print("operador lógico E")
@@ -610,11 +608,6 @@ class analizador_lexico:
                     self.estado = 0
                     listTokens.append(token)
                     self.pos = self.pos-1
-                elif char == '&' and caracter_anterior == '|':
-                    print("&| error")
-                    # ERROR
-                elif char == '|' and caracter_anterior == '&':
-                    print("|& error")
                 elif char in delimitadores or char.isspace():
                     print("delimitador")
                     lexema = self.codigo[inicio_lexema:self.pos-1]
@@ -622,14 +615,13 @@ class analizador_lexico:
                     self.estado = 0
                     listTokens.append(token)
                     self.pos = self.pos-1
-                else:
-                    print ("outher", char)
-
+                
             elif self.estado == 14:  # Comentário de linha
                 char = self.readNext()
                 print("\nESTADO ", self.estado)
                 # aqui tem-se um erro - operador lógico incompleto.
                 if char == None :
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'comentario_de_linha', lexema)
                     listTokens.append(token)
@@ -648,6 +640,7 @@ class analizador_lexico:
                 print("\nESTADO ", self.estado)
                 # aqui tem-se um erro - operador lógico incompleto.
                 if char == None :
+                    print("FIM DE ARQUIVO")
                     self.estado = 558
                 elif char == '#':
                     self.estado = 16
@@ -659,6 +652,7 @@ class analizador_lexico:
                 print("\nESTADO ", self.estado)
                 # aqui tem-se um erro - operador lógico incompleto.
                 if char == None :
+                    print("FIM DE ARQUIVO")
                     self.estado = 558
                 elif char == '/':
                     self.estado=17
@@ -670,6 +664,7 @@ class analizador_lexico:
                 print("\nESTADO ", self.estado)
                 # aqui tem-se um erro - operador lógico incompleto.
                 if char == None :
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'comentario_de_bloco', lexema)
                     listTokens.append(token)
@@ -681,11 +676,12 @@ class analizador_lexico:
                     self.estado = 0
 
             elif self.estado == 19:  # estado de delimitadores
-                # ler o proximo, e muda o estado e sai.
+                # ler o proximo,  muda o estado e sai.
                 char = self.readNext()
                 print("\nESTADO 19")
                 print("lookhead: ", char)
                 if char == None:
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'delimitador', lexema)
                     estado = 0
@@ -709,14 +705,14 @@ class analizador_lexico:
             elif self.estado in (20, 21):  # estados para a cadeia de catacteres
                 # ler o proximo, e muda o estado e sai.
                 char = self.readNext()
-                print("\nESTADO", self.estado)
+                print("\nESTADO ", self.estado)
                 print("lookhead: ", char)
 
                 if(char == '"'):
                     self.estado = 22
-                elif(char == None):  # ERRO
+                elif(char == None): 
                     self.pos = self.pos-1 
-                    self.estado = 554
+                    self.estado = 554 #ESTADO DE ERRO
                 elif(char == "\n"):
                     self.pos = self.pos-1 
                     self.estado = 554
@@ -730,6 +726,7 @@ class analizador_lexico:
                 print("lookhead: ", char)
 
                 if char == None:
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                 else:
                     lexema = self.codigo[inicio_lexema:self.pos-1]
@@ -746,9 +743,10 @@ class analizador_lexico:
 
                 if(char == "'"):
                     self.estado = 25
-                elif(char == None):  # ERRO
+                elif(char == None):
+                    print("FIM DE ARQUIVO")  
                     self.pos = self.pos-1 
-                    self.estado = 555
+                    self.estado = 555 #ESTADO DE ERRO
                 elif(char == "\n"):
                     self.pos = self.pos-1 
                     self.estado = 555
@@ -774,6 +772,7 @@ class analizador_lexico:
                 print("lookhead: ", char)
 
                 if char == None:
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                 else:
                     lexema = self.codigo[inicio_lexema:self.pos-1]
@@ -782,12 +781,13 @@ class analizador_lexico:
                 self.estado = 0
                 listTokens.append(token)
 
-            elif self.estado == 554: ##ERRO DE CARACTER MAL FORMADO
+            elif self.estado == 554: ##ERRO DE CADEIA DE CARATERES MAL FORMADO
                 char = self.readNext()
                 print("\nESTADO DE ERRO ", self.estado)
                 print("lookhead: ", char)
 
-                if(char == None):  # ERRO
+                if(char == None):
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'cadeia_de_caracter_mal_formada', lexema, True)
                     listTokens.append(token)
@@ -806,7 +806,8 @@ class analizador_lexico:
                 print("\nESTADO DE ERRO ", self.estado)
                 print("lookhead: ", char)
 
-                if(char == None):  # ERRO
+                if(char == None):  
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'caracter_mal_formado', lexema, True)
                     listTokens.append(token)
@@ -825,7 +826,8 @@ class analizador_lexico:
                 print("\nESTADO DE ERRO ", self.estado)
                 print("lookhead: ", char)
 
-                if(char == None):  # ERRO
+                if(char == None): 
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'identificador_mal_formado', lexema, True)
                     self.estado = 0
@@ -844,10 +846,18 @@ class analizador_lexico:
                     self.estado = 556
             
             elif self.estado == 557: ##ERRO DE NÚMERO MAL FORMADO
+                char = self.readNext()
                 print("\nESTADO DE ERRO ", self.estado)
                 print("lookhead: ", char)
-
-                if char in ['+','-','/', '*','=', '<', '>','!','&','|','%',"\"","'",'\n'] or char in delimitadores or char.isspace():
+                
+                if(char == None): 
+                    print("FIM DE ARQUIVO")
+                    lexema = self.codigo[inicio_lexema:self.pos]
+                    token = Token(self.count_line, 'numero_mal_formado', lexema, True)
+                    self.estado = 0
+                    listTokens.append(token)
+                    break
+                elif char in ['+','-','/', '*','=', '<', '>','!','&','|','%',"\"","'",'\n'] or char in delimitadores or char.isspace():
                     lexema = self.codigo[inicio_lexema:self.pos-1]
                     token = Token(self.count_line, 'numero_mal_formado', lexema, True)
                     self.estado = 0
@@ -855,8 +865,7 @@ class analizador_lexico:
                     self.pos=self.pos-1
                 else:
                     self.estado = 557   
-                if(char == None):
-                    break
+                
             
             elif self.estado == 558: ##COMENTÁRIO MAL FORMADO
                 print("\nESTADO DE ERRO ", self.estado)
@@ -873,6 +882,7 @@ class analizador_lexico:
                 print("lookhead: ", char)
                 
                 if(char == None):
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'simbolo_invalido', lexema, True)
                     listTokens.append(token)
@@ -891,6 +901,7 @@ class analizador_lexico:
                 print("\nESTADO DE ERRO ", self.estado)
                 print("lookhead: ", char)
                 if(char == None):
+                    print("FIM DE ARQUIVO")
                     lexema = self.codigo[inicio_lexema:self.pos]
                     token = Token(self.count_line, 'ponto_flutuante_mal_formado', lexema, True)
                     listTokens.append(token)
@@ -904,7 +915,7 @@ class analizador_lexico:
                 else:
                     self.estado = 560
 
-            elif self.estado == 561: ##ERRO DE OPERADOR LÓGICO FLUTUANTE MAL FORMADO
+            elif self.estado == 561: ##ERRO DE OPERADOR LÓGICO MAL FORMADO
                 char = self.readNext()
                 print("\nESTADO DE ERRO ", self.estado)
                 print("lookhead: ", char)
@@ -924,7 +935,7 @@ class analizador_lexico:
 
         return listTokens
 
-    #ler o próximo caracter
+    #ler o próximo caracter e retorna
     def readNext(self):
         if self.pos == len(self.codigo):
             return None
@@ -945,16 +956,19 @@ def list_tokens_valid(token):
 def list_tokens_error(token):
     return token.hasError()
 
+#LER TODOS OS ARQUIVOS .txt PRESENTES NA PASTA INPUT
 def readFiles():
     cwd = os.getcwd()
     files = os.listdir(cwd+"/input")
     for file in files:
         num =  sum_digits(file)
         if file.endswith(".txt"): 
+            #cria um arquivo de saída 
             file_exit = open(cwd+"/output"+'/saida'+num+'.txt', 'w+')
             analizador = analizador_lexico()
-            analizador.readArchive(cwd+"/input/"+file)
+            analizador.readArchive(cwd+"/input/"+file) #analisa o arquivo
             tokens = analizador.listToken()
+            #obtei o os tokens válidos e inválidos
             tokens_valid = list(filter(list_tokens_valid,tokens))
             tokens_not_valid = list(filter(list_tokens_error,tokens))
             for token in tokens_valid:
@@ -969,5 +983,6 @@ def readFiles():
             
 if __name__ == '__main__':
     readFiles()
+    print("\n_________________________\nANÁLISE LÉXICA CONCLUÍDA\n_________________________")
 
 
