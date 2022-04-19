@@ -1,0 +1,12 @@
+<1,operador_atribuicao,=>
+<1,identificador,b>
+<2,operador_atribuicao,=>
+<2,identificador,c>
+<3,operador_atribuicao,=>
+<3,identificador,x>
+
+----------------------------------ERROS----------------------------------
+
+<1,identificador_mal_formado,aaaéaaa>
+<2,simbolo_invalido,çaaaa>
+<3,identificador_mal_formado,aaaç>

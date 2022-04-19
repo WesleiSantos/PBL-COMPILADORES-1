@@ -1,0 +1,14 @@
+<1,operador_atribuicao,=>
+<1,inteiro,454>
+<2,delimitador,.>
+<2,inteiro,454>
+<6,operador_atribuicao,=>
+<6,inteiro,50>
+
+----------------------------------ERROS----------------------------------
+
+<1,ponto_flutuante_mal_formado,10.aa>
+<3,ponto_flutuante_mal_formado,50.>
+<4,ponto_flutuante_mal_formado,50.$>
+<5,simbolo_invalido,$50$>
+<6,numero_mal_formado,50a50>

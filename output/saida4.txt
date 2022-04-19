@@ -1,0 +1,10 @@
+<2,identificador,aaa5454__>
+<2,operador_atribuicao,=>
+<4,identificador,aaa>
+<4,operador_atribuicao,=>
+
+----------------------------------ERROS----------------------------------
+
+<1,identificador_mal_formado,aaa$@@bbb$aaa>
+<3,identificador_mal_formado,a2@aa>
+<4,simbolo_invalido,$bbb>

@@ -1,5 +1,8 @@
 from token import Token
 import os
+import re
+from unicodedata import normalize
+
 
 class Analizador_lexico:
     def __init__(self, symbol_table) -> None:
@@ -10,23 +13,10 @@ class Analizador_lexico:
         self.codigo = ''
         self.reservation_words = symbol_table
 
-    # Ler arquivo de texto com o código a ser analizado
-    def readArchive(self,path):
-        file = open(path, "r")
-        self.codigo = file.read()
-        file.close()
-
     # retorna true se o caracter é SEM acento
     def semAcento(self,char):
-        if char in ('á', 'à', 'â', 'ã', 'é', 'ê', 'è','ç', 'í', 'ì', 'î', 'ñ', 'û', 'ú', 'ù', 'ó', 'ô', 'õ'):
-            print("Caracter com acento!")
-            return False
-        elif char in ('á'.upper(), 'à'.upper(), 'â'.upper(), 'ã'.upper(), 'ç'.upper(), 'ì'.upper(),
-                        'é'.upper(), 'ê'.upper(), 'è'.upper(),'í'.upper(), 'î'.upper(), 'û'.upper(), 
-                        'ú'.upper(), 'ù'.upper(), 'ó'.upper(), 'ô'.upper(), 'õ'.upper()):
-            print("Caracter com acento!")
-            return False
-        return True
+        is_accented = re.compile(r"^[a-z]+$", re.IGNORECASE)
+        return  is_accented.match(normalize('NFC', char))
 
     #lista tokens
     def listToken(self):
@@ -34,7 +24,9 @@ class Analizador_lexico:
         caracter_anterior = ''
         delimitadores = ('.', ',', ':', ';', '(', ')', '[', ']', '{', '}')
         listTokens = []
-        
+        self.pos = 0
+        self.estado = 0
+        self.count_line = 1
         while True:
             if self.estado == 0:  # estado inicial
                 # ler o proximo, muda o estado e sai.
@@ -220,12 +212,7 @@ class Analizador_lexico:
                     self.pos = self.pos-1
                     
                 else:
-                    ##print("É OUTRO CARACTER")
-                    ##lexema = self.codigo[inicio_lexema:self.pos-1]
-                    ##token = Token(self.count_line, 'inteiro', lexema)
-                    ##listTokens.append(token)
-                    ##self.estado = 0
-                    ##self.pos = self.pos-1
+                    self.pos = self.pos-1
                     self.estado = 557
 
             elif self.estado == 3:  # estado do ponto "flutuante"
@@ -942,6 +929,12 @@ class Analizador_lexico:
         char = self.codigo[self.pos]
         self.pos += 1
         return char
+
+    # Ler arquivo de texto com o código a ser analizado
+    def readArchive(self,path):
+        file = open(path, "r")
+        self.codigo = file.read()
+        file.close()
 
     #separa numeração do nome do arquivo
     def sum_digits(self,text):
