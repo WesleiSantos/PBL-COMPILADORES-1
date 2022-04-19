@@ -1,0 +1,14 @@
+<1,cadeira de caracteres,"ol@,35/*-+.%$#@#¨@%¨%##¨&#&$#$ world">
+<1,inteiro,1234>
+<1,operador_adicao,+>
+<1,inteiro,55>
+<2,inteiro,55512>
+<2,operador_adicao,+>
+<3,cadeira de caracteres,"jjj">
+<3,inteiro,123>
+
+----------------------------------ERROS----------------------------------
+
+<1,cadeia_de_caracter_mal_formada,"aa>
+<2,cadeia_de_caracter_mal_formada,">
+<3,simbolo_invalido,@44>
