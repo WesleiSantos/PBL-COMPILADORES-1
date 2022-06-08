@@ -976,6 +976,6 @@ class Analizador_lexico:
                     file_exit.write("\n"+"----------------------ANÁLISE LÉXICA CONCLUIDA SEM ERROS-----------------------"+"\n\n")
                 file_exit.close()
                 print("\n_________________________\nANÁLISE LÉXICA CONCLUÍDA\n_________________________")            
-    
+                return tokens
 
 

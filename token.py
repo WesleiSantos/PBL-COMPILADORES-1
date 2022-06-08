@@ -10,3 +10,9 @@ class Token:
 
     def get(self):
        return "<"+str(self._posicao)+","+str(self._classe)+","+str(self.lexema)+">"
+
+    def getClass(self):
+        return ""+self._classe
+
+    def getLexema(self):
+        return ""+self.lexema
