@@ -1,4 +1,15 @@
-program Programa1;
-var {
-    integer idade;
+program teste;
+
+var
+{
+    integer cont, cont2;
+    integer cont3, cont4;
+}
+
+const
+{
+    integer MINIDADE = 18;
+    integer MAXIDADE = 69;
+    real MINPESO = 50.0;
+    boolean STATUS = paciente.status;
 }

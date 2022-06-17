@@ -1,6 +1,44 @@
 <1,palavra_reservada,program>
-<1,identificador,Programa1>
+<1,identificador,teste>
 <1,delimitador,;>
+<3,palavra_reservada,var>
+<4,delimitador,{>
+<5,palavra_reservada,integer>
+<5,identificador,cont>
+<5,delimitador,,>
+<5,identificador,cont2>
+<5,delimitador,;>
+<6,palavra_reservada,integer>
+<6,identificador,cont3>
+<6,delimitador,,>
+<6,identificador,cont4>
+<6,delimitador,;>
+<7,delimitador,}>
+<9,palavra_reservada,const>
+<10,delimitador,{>
+<11,palavra_reservada,integer>
+<11,identificador,MINIDADE>
+<11,operador_atribuicao,=>
+<11,inteiro,18>
+<11,delimitador,;>
+<12,palavra_reservada,integer>
+<12,identificador,MAXIDADE>
+<12,operador_atribuicao,=>
+<12,inteiro,69>
+<12,delimitador,;>
+<13,palavra_reservada,real>
+<13,identificador,MINPESO>
+<13,operador_atribuicao,=>
+<13,ponto_flutuante,50.0>
+<13,delimitador,;>
+<14,palavra_reservada,boolean>
+<14,identificador,STATUS>
+<14,operador_atribuicao,=>
+<14,identificador,paciente>
+<14,delimitador,.>
+<14,identificador,status>
+<14,delimitador,;>
+<15,delimitador,}>
 
 ----------------------ANÁLISE LÉXICA CONCLUIDA SEM ERROS-----------------------
 
