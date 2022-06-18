@@ -1,3 +1,4 @@
+from pickle import NONE
 from token import Token
 VAR_TYPES = ('integer', 'real', 'string', 'boolean', 'char')
 CONST_TYPES = ('integer', 'real', 'string', 'boolean', 'char')
@@ -219,7 +220,7 @@ class Analisador_sintatico:
             print(token.getLexema())
             return
         else:
-            print("ERRO")
+            print("ERROR")
             return #ERROR
     
     def value(self):
@@ -243,12 +244,93 @@ class Analisador_sintatico:
                 print(token.getLexema())
                 return
             else:
-                print("ERRO")
+                print("ERROR")
                 return #ERROR
         else:
             return 
 
+#################  REGISTER  #############################   
+    def registerStatement(self):
+        print('REGISTER STATMENT')
+        token = self.nextToken()
+        if(token.getLexema() == 'register'):
+            print(token.getLexema())
+            token = self.nextToken()
+        else:
+            print('ERROR')
+            return #ERROR
+        if(token.getClass() == 'identificador'):
+            print(token.getLexema())
+            token = self.nextToken()
+        else:
+            print('ERROR')
+            return #ERROR
+        if(token.getLexema() == '{'):
+            print(token.getLexema())
+            self.registerList()
+        else:
+            print('ERROR')
+            return #ERROR
+    
+    def registerStatementMultiple(self):
+        print("REGISTER STATEMENT MULTIPLE")
+        token = self.nextToken()
+        if(token == None):
+            return 
+        if(token.getLexema() == 'register'):
+            print(token.getLexema())
+            self.previousToken()
+            self.registerStatement()
+        else:
+            return 
 
+
+    def registerList(self):
+        print("REGISTER LIST")
+        self.registerDeclaration()
+        self.registerList1()
+    
+    def registerList1(self):
+        print("REGISTER LIST1")
+        token = self.nextToken()
+        if(token.getLexema() == '}'):
+            print(token.getLexema())
+            self.registerStatementMultiple()
+        else:
+            self.previousToken()
+            self.registerDeclaration()
+            self.registerList1()
+    
+    def registerDeclaration(self):
+        print("REGISTER DECLARATION")
+        self.constType()
+        token = self.nextToken()
+        if(token.getClass() == 'identificador'):
+            print(token.getLexema())
+            self.registerDeclaration1()
+            return
+        else:
+            print('ERROR')
+            return #ERROR
+
+    def registerDeclaration1(self):
+        print("REGISTER DECLARATION1")
+        token = self.nextToken()
+        if(token.getLexema() == ';'):
+            print(token.getLexema())
+            return 
+        if(token.getLexema() == ','):
+            print(token.getLexema())
+            token = self.nextToken()
+        else:
+            print('ERROR')
+            return
+        if(token.getClass() == 'identificador'):
+            print(token.getLexema())
+            self.registerDeclaration1()
+        else:
+            print('ERROR')
+            return #ERROR
 
 ############################ TALVEZ OK
     def procedureStatement(self):
@@ -302,7 +384,10 @@ class Analisador_sintatico:
 
     def nextToken(self):
         self.token_position+=1
+        if self.token_position == len(self.tokens_list):
+            return None
         return self.tokens_list[self.token_position]
+
     def previousToken(self):
         self.token_position-=1
         return self.tokens_list[self.token_position]

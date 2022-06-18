@@ -13,3 +13,18 @@ const
     real MINPESO = 50.0;
     boolean STATUS = paciente.status;
 }
+
+register Pessoa1
+{
+    integer idade;
+    real peso;
+    string nome;
+}
+
+register Pessoa2
+{
+    integer idade;
+    real peso;
+    string nome;
+}
+

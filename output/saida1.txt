@@ -39,6 +39,32 @@
 <14,identificador,status>
 <14,delimitador,;>
 <15,delimitador,}>
+<17,palavra_reservada,register>
+<17,identificador,Pessoa1>
+<18,delimitador,{>
+<19,palavra_reservada,integer>
+<19,identificador,idade>
+<19,delimitador,;>
+<20,palavra_reservada,real>
+<20,identificador,peso>
+<20,delimitador,;>
+<21,palavra_reservada,string>
+<21,identificador,nome>
+<21,delimitador,;>
+<22,delimitador,}>
+<24,palavra_reservada,register>
+<24,identificador,Pessoa2>
+<25,delimitador,{>
+<26,palavra_reservada,integer>
+<26,identificador,idade>
+<26,delimitador,;>
+<27,palavra_reservada,real>
+<27,identificador,peso>
+<27,delimitador,;>
+<28,palavra_reservada,string>
+<28,identificador,nome>
+<28,delimitador,;>
+<29,delimitador,}>
 
 ----------------------ANÁLISE LÉXICA CONCLUIDA SEM ERROS-----------------------
 
