@@ -1,5 +1,3 @@
-program teste;
-
 var
 {
     integer cont, cont2;
