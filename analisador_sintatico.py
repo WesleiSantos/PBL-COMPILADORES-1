@@ -216,10 +216,14 @@ class Analisador_sintatico:
         else:
             print("ESPERADO PALAVRA RESERVADA CONST")
             self.previousToken()
-            token = self.ERROR(('{',';'))
+            token = self.ERROR(('{','integer', 'real', 'string', 'boolean', 'char', ';'))
             
+            if(token.getLexema() in ('integer', 'real', 'string', 'boolean', 'char')):
+                print("ESPERADO const '{'")
+                self.previousToken()
+                
             if(token.getLexema()==";"):
-                print("ESPERADO const '{' ")
+                print("ESPERADO const '{' TYPE VARIABLE ")
                 
             ##a continuação é a mesma para caso encontrado o { ou ;
             self.constlist()
