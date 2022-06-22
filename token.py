@@ -16,3 +16,6 @@ class Token:
 
     def getLexema(self):
         return ""+self.lexema
+    
+    def getPosition(self):
+        return self._posicao

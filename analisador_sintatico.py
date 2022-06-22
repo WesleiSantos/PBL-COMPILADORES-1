@@ -1,5 +1,7 @@
 from pickle import NONE
 from token import Token
+from erro import Erro
+
 VAR_TYPES = ('integer', 'real', 'string', 'boolean', 'char')
 CONST_TYPES = ('integer', 'real', 'string', 'boolean', 'char')
 
@@ -13,9 +15,12 @@ class Analisador_sintatico:
         print("\n_________________________\nANALISE SINTÁTICA\n_________________________")            
         self.start()
 
-    def ERROR(self, simb_sinc):
-        while(self.nextToken().getLexema() not in tokens_sinc):
-                print("ERRO")
+    def ERROR(self, tokens_sinc):
+        token = self.nextToken()
+        while(token.getLexema() not in tokens_sinc):
+            print("ERRO", token.getLexema())
+            token = self.nextToken()
+        return token
         
     def start(self):
         token = self.nextToken() #LER O PRIMEIRO TOKEN
@@ -23,20 +28,54 @@ class Analisador_sintatico:
             print(token.getLexema())
             token = self.nextToken()
         else:
-            print("ESPARADO A PALAVRA RESERVADA 'PROGRAM'")
-            self.ERROR((';', 'var'))
+            print("ESPERADO A PALAVRA RESERVADA 'PROGRAM'")
+           # tk_previous=token #para saber a posição do token anterior (onde esta o erro)
+            self.previousToken()
+            token = self.ERROR((';', 'var', 'const')) ##se encontrar o um dos token de sicrnz.
+            if(token.getLexema() == ';'):
+                #erro = Erro(tk_previous.getPosition(), "ESPERADO A PALAVRA RESERVADA 'PROGRAM'")
+                #print(tk_previous.getPosition())
+                self.globalStatement()
+            if(token.getLexema() == 'var'):
+                #erro = Erro(tk_previous.getPosition() ", ESPERADO A PALAVRA RESERVADA 'PROGRAM'")
+                #print(tk_previous.getPosition())
+                
+                self.previousToken()
+                self.globalStatement()
+            if(token.getLexema()== 'const'):
+                print("NAO FOI DECLARADO O 'VAR'")
+                self.previousToken()
+                self.constStatement()
+                self.registerStatement()
+                
+            return
+            
         if(token.getClass() == 'identificador'):
             print(token.getLexema())
             token = self.nextToken()
         else:
-            print("ESPARADO UM IDENTIFICADOR")
-            self.ERROR((';', 'var'))
+            print("ESPERADO UM IDENTIFICADOR")
+            
+            self.previousToken()
+            token=self.ERROR((';', 'var'))
+            
+            if(token.getLexema() == ';'):
+                print(tk_previous.getPosition())
+            elif(token.getLexema() == 'var'):
+                print(tk_previous.getPosition())
+                
+                self.previousToken()
+            self.globalStatement()
+            return
+            
         if(token.getLexema()==';'):
             print(token.getLexema())
             self.globalStatement()
+            return
         else:
             print("ESPERADO UM PONTO E VÍRGULA")
-            self.globalStatement()            
+            self.globalStatement()  
+            return          
     
 
     def globalStatement(self):
@@ -56,13 +95,36 @@ class Analisador_sintatico:
             print(token.getLexema())
             token = self.nextToken()
         else:
-            print("ESPERADO PALAVRA RESERVADA VAR")
-            self.ERROR(('}',';'))               
+            print("ESPERADO PALAVRA RESERVADA 'VAR'")
+                
+            self.previousToken()
+            token = self.ERROR(('{',';'))
+            
+            if(token.getLexema()==";"):
+                print("ESPERADO VAR '{' ")
+                
+            ##a continuação é a mesma para caso encontrado o { ou ;
+            self.varlist()
+            self.constStatement()
+            self.registerStatement()
+            
+            return
+                      
         if(token.getLexema()=='{'):
             print(token.getLexema())
             self.varlist() 
         else:
-            print("ESPERADO PALAVRA RESERVADA '{'")
+            self.previousToken()
+            print("ERROR: ESPERADO O DELIMITADOR '{' ")
+            token = self.ERROR(('integer', 'real', 'string', 'boolean', 'char', 'const'))
+            if(token.getLexema() in VAR_TYPES):
+                self.previousToken()
+                self.varlist()
+            elif(token.getLexema() == 'const'):
+                print("ESPERADO UMA DECLAÇÃO DE VARIAVEL COM SEU TIPO")
+                self.previousToken()
+        return   
+            
 
     def varlist(self):
         print("VAR LIST")
@@ -73,22 +135,32 @@ class Analisador_sintatico:
             self.varlist()
         elif(token.getLexema() == '}'):
             print(token.getLexema())
-            return    
+            #return    
         else: 
-            print("ERRO")
-            return ##erro
+            self.previousToken()
+            token = self.ERROR((';','const'))
+            if(token.getLexema()==';'):
+                print("ESPERADO UM TIPO DE VARIAVEL")
+                self.varlist()
+            elif(token.getLexema()=='const'):
+                print("ESPERADO '}' ")
+                self.previousToken()
+                self.constStatement()
+                self.registerStatement()
+            #return ##erro
 
     def varList1(self):
         token = self.nextToken()
-        if(token in ('integer', 'real', 'string','real','boolean', 'char')):
+        if(token.getLexema() in VAR_TYPES):
             print(token.getLexema())
             self.varList1()
-        elif(self.getLexema()=='}'):
+        elif(token.getLexema()=='}'):
             print(token.getLexema())
             return
         else: 
-            print("ERRO")
-            return #erro
+            print("ESPERADO UM TIPO DE VARIAVEL OU UM }")
+            self.ERROR((',',';'))
+            #return #erro
 
     def varDeclaration(self):
         print("VAR DLECARATION")
@@ -99,8 +171,9 @@ class Analisador_sintatico:
             self.varDeclaration1()
             return
         else:
-            print("ERRO")
-            return #ERROR
+            print("ESPERADO UM IDENTIFICADOR")
+            self.ERROR((',',';'))
+            #return #ERROR
         
     def varDeclaration1(self):
         print('VAR DECLARATION 1')
@@ -115,10 +188,12 @@ class Analisador_sintatico:
                 print(token.getLexema())
                 self.varDeclaration1()    
             else: 
-                print("ERRO")
-                return #erro
+                print("ESPERADO UM IDENTIFICADOR")
+                self.ERROR((',',';'))
+                #return #erro
         else:
-           print("ERRO")
+           print("ESPERADO , OU ;")
+           self.ERROR((',',';'))
            return #ERROR
     
     def varType(self):
@@ -140,12 +215,34 @@ class Analisador_sintatico:
             token = self.nextToken()
         else:
             print("ESPERADO PALAVRA RESERVADA CONST")
-            self.ERROR(('}',';'))               
+            self.previousToken()
+            token = self.ERROR(('{',';'))
+            
+            if(token.getLexema()==";"):
+                print("ESPERADO const '{' ")
+                
+            ##a continuação é a mesma para caso encontrado o { ou ;
+            self.constlist()
+            self.registerStatement()
+            
+            return
+                     
         if(token.getLexema()=='{'):
             print(token.getLexema())
             self.constlist() 
         else:
-            print("ESPERADO PALAVRA RESERVADA '{'")
+            print("ESPERADO '{'")
+            self.previousToken()
+            token = self.ERROR((';','register'))
+            if(token.getLexema()==";"):
+                self.constlist()
+                self.registerStatement()
+            elif(token.getLexema()=="register"):
+                print("HÁ PROBLEMAS NO ESCOPO const")
+                self.registerStatement()
+            
+            return
+            
 
     def constlist(self):
         print("CONST LIST")
@@ -257,20 +354,35 @@ class Analisador_sintatico:
             print(token.getLexema())
             token = self.nextToken()
         else:
-            print('ERROR')
-            return #ERROR
+            self.previousToken()
+            print("ESPERADO PALAVRA RESERVADA 'register'")
+            token = self.ERROR(('{', ';', '}'))
+            if(token.getLexema()=="{"):
+                self.registerList()
+                #procedure etc;;;;
+                
+            elif(token.getLexema()==";"):
+                print("ESPERADO {")
+                self.registerDeclaration()
+            elif(token.getLexema()=="}"):
+                print("EXISTE UM ERRO NO ESCOPO REGISTER")
+                self.registerStatementMultiple()
+            
+            return 
+        
         if(token.getClass() == 'identificador'):
             print(token.getLexema())
             token = self.nextToken()
         else:
-            print('ERROR')
-            return #ERROR
+            print('ESPERADO IDENTIFICADOR')
+            return 
+        
         if(token.getLexema() == '{'):
             print(token.getLexema())
             self.registerList()
         else:
-            print('ERROR')
-            return #ERROR
+            print("ESPERADO '{'")
+            return
     
     def registerStatementMultiple(self):
         print("REGISTER STATEMENT MULTIPLE")
@@ -336,13 +448,27 @@ class Analisador_sintatico:
     def procedureStatement(self):
         if(self.nextToken().getLexema()=='procedure'):
             print("PROCEDURE")
-            if(self.nextToken().getClass()=='Identifier'):
-                if(self.nextToken().getLexema()=='('):
-                    parameterProcedure()
-                    if(self.nextToken().getLexema()=='{'):
-                        localStatement() ####>>>> FALTA A FUNÇÃO
-                        procedureStatement1()
-                        return
+        else:#ERROR
+            print("ESPERADO PALAVRA_RESERVADA procedure")
+            
+        if(self.nextToken().getClass()=='Identifier'):
+            print("Idetificador")
+        else:#ERROR
+            print("ESPERADO UM IDENTIFICADOR")
+            
+        if(self.nextToken().getLexema()=='('):
+            parameterProcedure()
+        else:#ERROR
+            print("ESPERADO UM (")
+        
+        if(self.nextToken().getLexema()=='{'):
+            localStatement() ####>>>> FALTA A FUNÇÃO
+            procedureStatement1()
+            return
+        else:
+            #ERROR
+            print("ESPERADO UM {")
+       
                     
     def parameterProcedure(self):
         token = self.nextToken().getClass
