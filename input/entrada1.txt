@@ -6,42 +6,27 @@ var
     integer cont3, cont4;
 }
 
-const
-{
-    integer MINIDADE = 18;
-    integer MAXIDADE = 69;
-    real MINPESO = 50.0;
-    boolean STATUS = paciente.status;
-}
-
-register Pessoa1
-{
-    integer idade;
-    real peso;
-    string nome;
-}
-
-register Pessoa2
-{
-    integer idade;
-    real peso;
-    string nome;
-}
-
 procedure teste1(integer algo, boolean ab)
 {
+    var
+	{
+    	integer cont;
+	}	
 }
 
 procedure teste2() {
-}
-
+    
 }
 
 function teste1(): integer {
+    var
+	{
+    	integer cont;
+	}
 	return 1.23;
 }
 function teste2(integer idade): boolean {
-
+    var{}
 	return false;
 }
 function teste3(integer algo, boolean ab): string {

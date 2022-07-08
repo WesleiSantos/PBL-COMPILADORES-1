@@ -81,8 +81,8 @@ class Analisador_sintatico:
     def globalStatement(self):
         print("GLOBAL STATMENT")
         self.varStatement()
-        self.constStatement()
-        self.registerStatement()
+        #self.constStatement()
+        #self.registerStatement()
         self.procedureStatement()
         self.functionStatement()
         #self.main()
@@ -603,16 +603,16 @@ class Analisador_sintatico:
 
             if(token.getLexema()=='{'):
                 print(token.getLexema())
-                #self.localStatement()
+                self.localStatement()
                 self.procedureStatement1()
                 return
             else:
                 print("ESPERADO UM {")
                 self.localStatement()
                 self.procedureStatement1()
-                return
-            
+                return   
         else: ##vazio
+            self.previousToken()
             return
         
     def parameterProcedure(self):
@@ -680,9 +680,6 @@ class Analisador_sintatico:
                 self.previousToken()
                 print("ESPERADO ')' EM PROCEDURE")   
                 
-    def localStatement(self):
-        print("localStatement")
-
     def procedureStatement1(self):
         print('PROCEDURE STATMENT 1')
         token = self.nextToken()
@@ -720,8 +717,8 @@ class Analisador_sintatico:
         
         if(token.getLexema()=='{'):
             print(token.getLexema())
+            self.localStatement()
             token = self.nextToken()
-            #self.localStatement()
         else:#ERROR
             print("ESPERADO UM '{'")
             self.localStatement()
@@ -846,14 +843,27 @@ class Analisador_sintatico:
                 print("ESPERANDO UM '): type_var_return")
                 self.previousToken()
             return
-              
-                
+
+  ########################## LOCAL STATEMENTS #########################################
+
     def localStatement(self):
-        print("localStatement")
+        print("LOCAL STATEMENT")
+        token = self.nextToken()
+        if(token.getLexema()=='var'):
+            self.previousToken()    
+            self.varStatement()
+        else:    
+            self.previousToken()    
+        self.localCommands()
+        return
+        
+    def localCommands(self):
+        print('LOCAL COMMANDS')
+        return
 
 
-  ######################################################################
 
+#########################################################################################    
     # def constStatement():
     # def registerStatement():
     # def procedureStatement():
