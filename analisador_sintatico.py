@@ -646,7 +646,7 @@ class Analisador_sintatico:
             else:
                 print("ESPERADO UM (")
                 self.previousToken()
-                self.parameterFunction()
+                self.parameterProcedure()
                 token = self.nextToken()
                 ##segue para o '{'
 
@@ -656,6 +656,7 @@ class Analisador_sintatico:
                 self.procedureStatement1()
                 return
             else:
+                self.previousToken()
                 print("ESPERADO UM {")
                 self.localStatement()
                 self.procedureStatement1()
@@ -759,8 +760,10 @@ class Analisador_sintatico:
                 self.parameterFunction()
                 token = self.nextToken()
             else:#ERROR
+                self.previousToken()
                 print("ESPERADO UM '('")
                 self.parameterFunction()
+                token = self.nextToken()
             
             if(token.getLexema()=='{'):
                 print(token.getLexema())
@@ -967,6 +970,7 @@ class Analisador_sintatico:
         print("LOCAL STATEMENT")
         token = self.nextToken()
         if(token.getLexema()=='var'):
+            print(token.getLexema())
             self.previousToken()    
             self.varStatement()
         else:    
@@ -977,6 +981,7 @@ class Analisador_sintatico:
     def localCommands(self):
         print('LOCAL COMMANDS')
         token = self.nextToken()
+        print(token.getLexema())
         if(token.getLexema()=='if'):
             self.previousToken()
             self.ifDecs()
