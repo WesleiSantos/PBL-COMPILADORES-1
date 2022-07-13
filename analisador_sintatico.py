@@ -1,6 +1,7 @@
 from pickle import NONE
 from token import Token
 from erro import Erro
+import os
 
 VAR_TYPES = ('integer', 'real', 'string', 'boolean', 'char')
 CONST_TYPES = ('integer', 'real', 'string', 'boolean', 'char')
@@ -11,10 +12,14 @@ class Analisador_sintatico:
     def __init__(self, listTokens) -> None:
         self.tokens_list = listTokens
         self.token_position = -1
+        cwd = os.getcwd()
+        self.file_exit = open(cwd+"/output"+'/sintatico.txt', 'w+')
+        
         
     def readTokens(self):
         print("\n_________________________\nANALISE SINTÁTICA\n_________________________")            
         self.start()
+        self.file_exit.close()
         
     def ERROR(self, tokens_sinc):
         token = self.nextToken()
@@ -25,33 +30,57 @@ class Analisador_sintatico:
         
     def start(self):
         token = self.nextToken() #LER O PRIMEIRO TOKEN
+        tokError = token.getPosition()
         if(token == None):
             print("ERROR - ARQUIVO VAZIO")
+            self.file_exit.write("ERRO: AQUIVO VAZIO\n")
             return
         elif(token.getLexema() == "program"):
             print(token.getLexema())
+            tokError = token.getPosition()
             token = self.nextToken()
         else:
-            print("ESPERADO A PALAVRA RESERVADA 'PROGRAM'")
-           # tk_previous=token #para saber a posição do token anterior (onde esta o erro)
+            #print("ESPERADO A PALAVRA RESERVADA 'PROGRAM'")
+            #self.file_exit.write("ERRO: ESPERADO A PALAVRA RESERVADA 'program' - linha "+ str(tokError))
+            if(token.getClass()=='identificador'):
+                tokError = token.getPosition()
+                token = self.nextToken()
+                if(not(token.getLexema()==';')):
+                    self.previousToken()
+                    token = self.ERROR((';', 'var', 'const')) ##se encontrar o um dos token de sicrnz.
+                    if(token.getLexema() == ';'):
+                        self.file_exit.write("ERRO: ESPERADO A PALAVRA RESERVADA 'program' - linha "+ str(tokError)+"\n")
+                        self.globalStatement()
+                    if(token.getLexema() == 'var'):
+                        self.file_exit.write("ERRO: ESPERADO 'program ;' - linha "+ str(tokError)+"\n")
+                        self.previousToken()
+                        self.globalStatement()
+                    if(token.getLexema()== 'const'):
+                        print("NAO FOI DECLARADO O 'VAR'")
+                        self.file_exit.write("ERRO: ESPERADO 'program ; <varStatement>' - linha "+ str(tokError)+"\n")
+                        self.previousToken()
+                        self.constStatement()
+                        self.registerStatement()  
+                else:
+                    self.file_exit.write("ERRO: ESPERADO 'program' - linha "+ str(tokError)+"\n")
+                return                 
+                
             self.previousToken()
+            tokError = token.getPosition()
             token = self.ERROR((';', 'var', 'const')) ##se encontrar o um dos token de sicrnz.
             if(token.getLexema() == ';'):
-                #erro = Erro(tk_previous.getPosition(), "ESPERADO A PALAVRA RESERVADA 'PROGRAM'")
-                #print(tk_previous.getPosition())
+                self.file_exit.write("ERRO: ESPERADO 'program identifier' - linha "+ str(tokError)+"\n")
                 self.globalStatement()
             if(token.getLexema() == 'var'):
-                #erro = Erro(tk_previous.getPosition() ", ESPERADO A PALAVRA RESERVADA 'PROGRAM'")
-                #print(tk_previous.getPosition())
-                
+                self.file_exit.write("ERRO: ESPERADO 'program identifier;' - linha "+ str(tokError)+"\n")
                 self.previousToken()
                 self.globalStatement()
             if(token.getLexema()== 'const'):
                 print("NAO FOI DECLARADO O 'VAR'")
+                self.file_exit.write("ERRO: ESPERADO 'program identifier; <varStatement>' - linha "+ str(tokError)+"\n")
                 self.previousToken()
                 self.constStatement()
                 self.registerStatement()
-                
             return
             
         if(token.getClass() == 'identificador'):
@@ -59,25 +88,26 @@ class Analisador_sintatico:
             token = self.nextToken()
         else:
             print("ESPERADO UM IDENTIFICADOR")
-            
+            #self.file_exit.write("ERRO: ESPERADO 'identifier' - linha "+ str(tokError)+"\n")
             self.previousToken()
             token=self.ERROR((';', 'var'))
-            
             if(token.getLexema() == ';'):
-                print(tk_previous.getPosition())
+                self.file_exit.write("ERRO: ESPERADO 'identifier' - linha "+ str(tokError)+"\n")
+                self.globalStatement()
             elif(token.getLexema() == 'var'):
-                print(tk_previous.getPosition())
-                
+                self.file_exit.write("ERRO: ESPERADO 'identifier;' - linha "+ str(tokError)+"\n")
                 self.previousToken()
-            self.globalStatement()
+                self.globalStatement()
             return
-            
+        
         if(token.getLexema()==';'):
             print(token.getLexema())
             self.globalStatement()
             return
         else:
             print("ESPERADO UM PONTO E VÍRGULA")
+            self.file_exit.write("ERRO: ESPERADO ';' - linha "+ str(tokError)+"\n")
+            self.previousToken()
             self.globalStatement()  
             return          
     
@@ -94,6 +124,7 @@ class Analisador_sintatico:
     def varStatement(self):
         print("VAR STATMENT")
         token = self.nextToken()
+        tokError = token.getPosition()
         if(token.getLexema() == 'var'):
             print(token.getLexema())
             token = self.nextToken()
@@ -103,10 +134,13 @@ class Analisador_sintatico:
             
             if(token.getLexema()=="{"):
                 print("ESPERADO PALAVRA RESERVADA 'var' ")
+                self.file_exit.write("ERRO: ESPERADO 'var' - linha "+ str(tokError)+"\n")
             elif(token.getLexema()==";"):
                 print("ESPERADO ESPERADO 'var { variable_type' ")
+                self.file_exit.write("ERRO: ESPERADO 'var { variable_type' - linha "+ str(tokError)+"\n")
             elif(token.getLexema() in VAR_TYPES):
                 print("ESPERADO 'var {' ")
+                self.file_exit.write("ERRO: ESPERADO 'var {' - linha "+ str(tokError)+"\n")
                 self.previousToken()
                 
             ##a continuação é a mesma para caso encontrado o { ou ;
@@ -119,12 +153,15 @@ class Analisador_sintatico:
         else:
             self.previousToken()
             print("ERROR: ESPERADO O DELIMITADOR '{' ")
+            
             token = self.ERROR(('integer', 'real', 'string', 'boolean', 'char', 'const'))
             if(token.getLexema() in VAR_TYPES):
+                self.file_exit.write("ERRO: ESPERADO '{' - linha "+ str(tokError)+"\n")
                 self.previousToken()
                 self.varlist()
             elif(token.getLexema() == 'const'):
                 print("ESPERADO UMA DECLAÇÃO DE VARIAVEL COM SEU TIPO")
+                self.file_exit.write("ERRO: ESTRUTURA DE DECLARAÇÃO DE VARIÁVEL INVALIDA - linha "+ str(tokError)+"\n")
                 self.previousToken()
         return   
             
