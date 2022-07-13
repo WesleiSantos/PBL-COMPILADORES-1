@@ -169,6 +169,7 @@ class Analisador_sintatico:
     def varlist(self):
         print("VAR LIST")
         token = self.nextToken()
+        tokError = token.getPosition()
         if(token.getLexema() in VAR_TYPES or token.getClass()=='identificador'):
             self.previousToken()
             self.varDeclaration()
@@ -177,14 +178,18 @@ class Analisador_sintatico:
             print(token.getLexema())
             #return    
         else: 
-            print("PREVIOUS TOKEN: ", token.getLexema())
+            
             if(token.getClass()=="identificador"):
                 print("ESPERADO DECLARAÇÃO DE UM TIPO DE VARIÁVEL")
                 self.varDeclaration1()
                 self.varList1()
                 return
             self.previousToken()
-            token = self.ERROR((';', ',' ,'const'))
+            token = self.ERROR(('integer', 'real', 'string', 'boolean', 'char', ';', ',' ,'const'))
+            if(token.getLexema() in VAR_TYPES):
+                self.file_exit.write("ERRO: DECLARAÇÃO DE VÁRIÁVEL INVALIDA - linha "+ str(tokError)+"\n")
+                self.previousToken()
+                self.varlist()
             if(token.getLexema()==";"):
                 print("ESPERADO DECLARAÇÃO DE UM TIPO DE VARIÁVEL e 'identificador(es)'")
                 self.varlist()
@@ -216,7 +221,8 @@ class Analisador_sintatico:
                 self.varDeclaration1()
                 return
             self.previousToken()
-            token = self.ERROR((';', ',' ,'const'))
+            tokError = token.getPosition()
+            token = self.ERROR((';', ',' ,'}','const'))
             if(token.getLexema()==";"):
                 print("ESPERADO DECLARAÇÃO DE UM TIPO DE VARIÁVEL e 'identificador(es)'")
                 self.varlist()
@@ -224,6 +230,9 @@ class Analisador_sintatico:
                 print("ESPERADO 'type_var identifier")
                 self.previousToken()
                 self.varDeclaration1()
+            if(token.getLexema()=="}"):
+                self.file_exit.write("ERRO: DECLARAÇÃO DE VÁRIÁVEL INVALIDA - linha "+ str(tokError)+"\n")
+                return
             elif(token.getLexema()=="const"):
                 print("ESPERADO }")
                 self.previousToken()
@@ -865,7 +874,7 @@ class Analisador_sintatico:
                 self.previousToken()
             return
 
-  ########################## LOCAL STATEMENTS #########################################
+  ########################## MAIN e LOCAL STATEMENTS #########################################
     def main(self):
         token = self.nextToken()
         tokError = token.getPosition()
