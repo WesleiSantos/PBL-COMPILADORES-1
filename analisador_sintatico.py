@@ -395,7 +395,7 @@ class Analisador_sintatico:
             token = self.nextToken()
         else:
             token = self.ERROR(('=', ';'))
-            if(tokem.getLexema() == '='):
+            if(token.getLexema() == '='):
                 print("ESPERADO UM TIPO DE CONSTANTE")
                 self.value()
                 self.ConstDeclaration1()
